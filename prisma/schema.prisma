@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  firstName       String
+  lastName        String
+  gender          String? // <-- ✅ Added from friend's version
+  homeCity        String?
+  isStudent       Boolean  @default(false)
+  university      String?
+  phone           String?
+  isEmailVerified Boolean  @default(false)
+  isPhoneVerified Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  password        String
+
+  ridePosts           RidePost[]
+  sentConnections     Connection[] @relation("SentConnections")
+  receivedConnections Connection[] @relation("ReceivedConnections")
+  savedRides          SavedRide[]
+
+  @@map("users")
+}
+
+model RidePost {
+  id             String     @id @default(cuid())
+  userId         String
+  type           RideType
+  from           String
+  to             String
+  date           DateTime
+  timeOfDay      TimeOfDay
+  seats          Int
+  seatsAvailable Int
+  contactInfo    String
+  notes          String?
+  status         PostStatus @default(ACTIVE)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hashtags     RidePostHashtag[]
+  connections  Connection[]
+  savedByUsers SavedRide[]
+
+  @@map("ride_posts")
+}
+
+model Hashtag {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+
+  ridePosts RidePostHashtag[]
+
+  @@map("hashtags")
+}
+
+model RidePostHashtag {
+  id         String   @id @default(cuid())
+  ridePostId String
+  hashtagId  String
+  createdAt  DateTime @default(now())
+
+  ridePost RidePost @relation(fields: [ridePostId], references: [id], onDelete: Cascade)
+  hashtag  Hashtag  @relation(fields: [hashtagId], references: [id], onDelete: Cascade)
+
+  @@unique([ridePostId, hashtagId])
+  @@map("ride_post_hashtags")
+}
+
+model Connection {
+  id         String           @id @default(cuid())
+  fromUserId String
+  toUserId   String
+  ridePostId String
+  status     ConnectionStatus @default(PENDING)
+  message    String?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  fromUser User     @relation("SentConnections", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser   User     @relation("ReceivedConnections", fields: [toUserId], references: [id], onDelete: Cascade)
+  ridePost RidePost @relation(fields: [ridePostId], references: [id], onDelete: Cascade)
+
+  @@unique([fromUserId, ridePostId])
+  @@map("connections")
+}
+
+model SavedRide {
+  id         String @id @default(cuid())
+  userId     String
+  ridePostId String
+
+  user     User     @relation(fields: [userId], references: [id])
+  ridePost RidePost @relation(fields: [ridePostId], references: [id])
+
+  @@unique([userId, ridePostId])
+}
+
+model VerificationCode {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  code      String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
+
+enum RideType {
+  OFFER
+  REQUEST
+}
+
+enum TimeOfDay {
+  MORNING
+  NOON
+  EVENING
+  FLEXIBLE
+}
+
+enum PostStatus {
+  ACTIVE
+  FULL
+  PAUSED
+}
+
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
