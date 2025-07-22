@@ -58,27 +58,7 @@ export default function HomePage() {
   };
 }, [router]);
 
-
-  const toggleSaveRide = (rideId) => {
-    let updated = []
-    if (savedRides.includes(rideId)) {
-      updated = savedRides.filter(id => id !== rideId)
-    } else {
-      updated = [rideId, ...savedRides]
-    }
-    setSavedRides(updated)
-    // Update in localStorage
-    const user = localStorage.getItem('currentUser')
-    if (user) {
-      try {
-        const parsed = JSON.parse(user)
-        parsed.savedRides = updated
-        localStorage.setItem('currentUser', JSON.stringify(parsed))
-      } catch {}
-    }
-  }
-
-const handlePostRide = async (data) => {
+const handlePostRide = async (data: any) => {
   const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
 
     console.log(1)
