@@ -1,4 +1,4 @@
-"use client"
+'use client'
 import React, { useEffect, useState } from 'react'
 import RideFeed from '@/components/RideFeed'
 
@@ -30,12 +30,18 @@ export default function SavedRidesPage() {
     }
   }, [])
 
-  if (loading) return <div className="text-white">Loading...</div>
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+        <span className="text-sm text-gray-400 animate-pulse">Loading saved rides...</span>
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white">
-      <div className="w-full max-w-4xl p-4 md:p-8 bg-[#16181c] rounded-2xl shadow border border-[#222327]">
-        <h1 className="text-2xl font-bold mb-4">Saved Rides</h1>
+    <div className="min-h-screen w-full bg-black text-white px-2 sm:px-4 py-6 overflow-y-auto">
+      <div className="w-full max-w-4xl mx-auto">
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 px-2 sm:px-0">Saved Rides</h1>
         <RideFeed
           posts={posts}
           setPosts={setPosts}

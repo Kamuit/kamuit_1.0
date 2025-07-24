@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Calendar } from 'lucide-react'
 
 const ridePostSchema = z.object({
   from: z.string().min(1, 'From location is required'),
@@ -30,7 +30,7 @@ interface RidePostFormProps {
     notes?: string
     hashtags: string[]
   }
-  onComplete: (data: RidePostFormData & { type: 'OFFER' | 'REQUEST', hashtags: string[] }) => void
+  onComplete: (data: RidePostFormData & { type: 'OFFER' | 'REQUEST'; hashtags: string[] }) => void
   onBack: () => void
 }
 
@@ -46,10 +46,9 @@ const hashtagOptions = [
 ]
 
 export default function RidePostForm({ initialData, onComplete, onBack }: RidePostFormProps) {
-  console.log('[RidePostForm] rendered with type:', initialData.type)
-
   const [selectedHashtags, setSelectedHashtags] = useState<string[]>(initialData.hashtags)
   const [type] = useState<'OFFER' | 'REQUEST'>(initialData.type)
+  const dateInputRef = useRef<HTMLInputElement>(null)
 
   const {
     register,
@@ -69,26 +68,25 @@ export default function RidePostForm({ initialData, onComplete, onBack }: RidePo
   })
 
   const onSubmit = (data: RidePostFormData) => {
-    console.log('[RidePostForm] submitting form with type:', type)
     onComplete({ ...data, type, hashtags: selectedHashtags })
   }
 
-  const toggleHashtag = (hashtagId: string) => {
-    setSelectedHashtags(prev => 
-      prev.includes(hashtagId) 
-        ? prev.filter(id => id !== hashtagId)
-        : [...prev, hashtagId]
+  const toggleHashtag = (id: string) => {
+    setSelectedHashtags(prev =>
+      prev.includes(id) ? prev.filter(tag => tag !== id) : [...prev, id]
     )
   }
+
+  const today = new Date().toISOString().split('T')[0]
+  const twoMonthsLater = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split('T')[0]
 
   return (
     <div className="max-w-2xl mx-auto">
       <div className="card">
         <div className="flex items-center mb-6">
-          <button
-            onClick={onBack}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
+          <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
             <ArrowLeft className="h-5 w-5 text-gray-600" />
           </button>
           <h2 className="text-2xl font-semibold text-gray-900 ml-4">
@@ -99,154 +97,102 @@ export default function RidePostForm({ initialData, onComplete, onBack }: RidePo
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="from" className="block text-sm font-medium text-gray-700 mb-1">
-                From *
-              </label>
-              <input
-                {...register('from')}
-                type="text"
-                id="from"
-                className="input-field"
-                placeholder="Chicago"
-              />
-              {errors.from && (
-                <p className="text-red-500 text-sm mt-1">{errors.from.message}</p>
-              )}
+              <label htmlFor="from" className="block text-sm font-medium text-gray-700 mb-1">From *</label>
+              <input {...register('from')} id="from" className="input-field" placeholder="e.g. Chennai" />
+              {errors.from && <p className="text-red-500 text-sm mt-1">{errors.from.message}</p>}
             </div>
-
             <div>
-              <label htmlFor="to" className="block text-sm font-medium text-gray-700 mb-1">
-                To *
-              </label>
-              <input
-                {...register('to')}
-                type="text"
-                id="to"
-                className="input-field"
-                placeholder="Milwaukee"
-              />
-              {errors.to && (
-                <p className="text-red-500 text-sm mt-1">{errors.to.message}</p>
-              )}
+              <label htmlFor="to" className="block text-sm font-medium text-gray-700 mb-1">To *</label>
+              <input {...register('to')} id="to" className="input-field" placeholder="e.g. Bengaluru" />
+              {errors.to && <p className="text-red-500 text-sm mt-1">{errors.to.message}</p>}
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
-                Date *
-              </label>
+            <div className="relative">
+              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">Date *</label>
               <input
-                {...register('date')}
-                type="date"
-                id="date"
-                className="input-field"
-                min={new Date().toISOString().split('T')[0]}
-                max={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+  {...register('date')}
+  id="date"
+  ref={dateInputRef}
+  type="date"
+  className="input-field px-4 placeholder:text-sm"
+  placeholder="Select date"
+  min={today}
+  max={twoMonthsLater}
+/>
+              <Calendar
+                onClick={() => dateInputRef.current?.showPicker()}
+                className="absolute right-3 top-9 h-5 w-5 text-gray-500 cursor-pointer"
               />
-              {errors.date && (
-                <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>
-              )}
+              {errors.date && <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>}
             </div>
-
             <div>
-              <label htmlFor="timeOfDay" className="block text-sm font-medium text-gray-700 mb-1">
-                Time of Day *
-              </label>
-              <select
-                {...register('timeOfDay')}
-                id="timeOfDay"
-                className="input-field"
-              >
+              <label htmlFor="timeOfDay" className="block text-sm font-medium text-gray-700 mb-1">Time of Day *</label>
+              <select {...register('timeOfDay')} id="timeOfDay" className="input-field">
                 <option value="MORNING">Morning</option>
                 <option value="NOON">Noon</option>
                 <option value="EVENING">Evening</option>
                 <option value="FLEXIBLE">Flexible</option>
               </select>
-              {errors.timeOfDay && (
-                <p className="text-red-500 text-sm mt-1">{errors.timeOfDay.message}</p>
-              )}
+              {errors.timeOfDay && <p className="text-red-500 text-sm mt-1">{errors.timeOfDay.message}</p>}
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="seats" className="block text-sm font-medium text-gray-700 mb-1">
-                Seats Available *
-              </label>
-              <select
-                {...register('seats', { valueAsNumber: true })}
-                id="seats"
-                className="input-field"
-              >
-                <option value={1}>1 seat</option>
-                <option value={2}>2 seats</option>
-                <option value={3}>3 seats</option>
-                <option value={4}>4 seats</option>
-                <option value={5}>5 seats</option>
+              <label htmlFor="seats" className="block text-sm font-medium text-gray-700 mb-1">Seats Available *</label>
+              <select {...register('seats', { valueAsNumber: true })} id="seats" className="input-field">
+                {[1, 2, 3, 4, 5].map(s => (
+                  <option key={s} value={s}>{s} seat{s > 1 ? 's' : ''}</option>
+                ))}
               </select>
-              {errors.seats && (
-                <p className="text-red-500 text-sm mt-1">{errors.seats.message}</p>
-              )}
+              {errors.seats && <p className="text-red-500 text-sm mt-1">{errors.seats.message}</p>}
             </div>
-
             <div>
-              <label htmlFor="contactInfo" className="block text-sm font-medium text-gray-700 mb-1">
-                Contact Info *
-              </label>
+              <label htmlFor="contactInfo" className="block text-sm font-medium text-gray-700 mb-1">Contact Info *</label>
               <input
                 {...register('contactInfo')}
-                type="text"
                 id="contactInfo"
                 className="input-field"
-                placeholder="Phone, email, or WhatsApp"
+                placeholder="Phone, email, etc."
               />
-              {errors.contactInfo && (
-                <p className="text-red-500 text-sm mt-1">{errors.contactInfo.message}</p>
-              )}
+              {errors.contactInfo && <p className="text-red-500 text-sm mt-1">{errors.contactInfo.message}</p>}
             </div>
           </div>
 
           <div>
-            <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
-              Notes (Optional)
-            </label>
+            <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
             <textarea
               {...register('notes')}
               id="notes"
               rows={3}
               className="input-field"
-              placeholder="Any additional details about your ride..."
+              placeholder="Any additional details..."
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Hashtags (Optional)
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-3">Hashtags (Optional)</label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {hashtagOptions.map((hashtag) => (
+              {hashtagOptions.map(h => (
                 <button
-                  key={hashtag.id}
+                  key={h.id}
                   type="button"
-                  onClick={() => toggleHashtag(hashtag.id)}
-                  className={`p-2 text-sm rounded-lg border transition-colors ${
-                    selectedHashtags.includes(hashtag.id)
+                  onClick={() => toggleHashtag(h.id)}
+                  className={`px-3 py-2 text-sm rounded-full border transition-colors ${
+                    selectedHashtags.includes(h.id)
                       ? 'bg-primary-100 border-primary-300 text-primary-700'
                       : 'bg-white border-gray-300 text-gray-700 hover:border-primary-300'
                   }`}
                 >
-                  {hashtag.label}
+                  {h.label}
                 </button>
               ))}
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="btn-primary w-full"
-          >
+          <button type="submit" disabled={isSubmitting} className="btn-primary w-full">
             {isSubmitting ? 'Posting...' : `Post ${type === 'OFFER' ? 'Ride' : 'Request'}`}
           </button>
         </form>

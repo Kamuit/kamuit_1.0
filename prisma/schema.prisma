@@ -12,7 +12,7 @@ model User {
   email           String   @unique
   firstName       String
   lastName        String
-  gender          String? // <-- ✅ Added from friend's version
+  gender          String? 
   homeCity        String?
   isStudent       Boolean  @default(false)
   university      String?
@@ -22,6 +22,10 @@ model User {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   password        String
+
+  bio             String?
+  location        String?
+  website         String?
 
   ridePosts           RidePost[]
   sentConnections     Connection[] @relation("SentConnections")

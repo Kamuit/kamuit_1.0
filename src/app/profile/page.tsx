@@ -22,19 +22,28 @@ export default function ProfilePage() {
   const [websiteValue, setWebsiteValue] = useState("")
   const router = useRouter()
 
-  useEffect(() => {
-    setTimeout(() => setLoading(false), 300)
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('currentUser')
-      if (stored) {
-        try {
-          setUser(JSON.parse(stored))
-        } catch {}
-      } else {
-        router.replace('/login')
-      }
+useEffect(() => {
+  const loadUser = async () => {
+    const stored = localStorage.getItem('currentUser')
+    if (!stored) {
+      router.replace('/login')
+      return
     }
-  }, [router])
+
+    try {
+      const parsed = JSON.parse(stored)
+      const res = await fetch(`/api/user/by-email?email=${parsed.email}`)
+      const dbUser = await res.json()
+      setUser(dbUser)
+    } catch {
+      setUser(JSON.parse(stored)) // fallback
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  loadUser()
+}, [])
 
   useEffect(() => {
     if (user) {
@@ -44,21 +53,39 @@ export default function ProfilePage() {
     }
   }, [user])
 
-  const handleSave = () => {
-    const updatedUser = { ...user, bio: bioValue, location: locationValue, website: websiteValue }
-    setUser(updatedUser)
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('currentUser', JSON.stringify(updatedUser))
-    }
-    setEditMode(false)
+const handleSave = async () => {
+  const updatedUser = { ...user, bio: bioValue, location: locationValue, website: websiteValue }
+  setUser(updatedUser)
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('currentUser', JSON.stringify(updatedUser))
   }
+
+  try {
+    await fetch('/api/profile/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        bio: bioValue,
+        location: locationValue,
+        website: websiteValue,
+      }),
+    })
+  } catch (err) {
+    console.error('Failed to save profile to server:', err)
+  }
+
+  setEditMode(false)
+}
 
   if (loading) return <div className="h-screen flex items-center justify-center bg-black text-white">Loading...</div>
   // Remove placeholder data for demo
   const bannerUrl = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80"
   const avatarUrl = "https://api.dicebear.com/7.x/avataaars/svg?seed=" + encodeURIComponent(user?.name || user?.firstName || "User")
-  const username = user?.name ? user.name.toLowerCase().replace(/\s+/g, "") : "user"
-  const joinDate = user?.joinDate ? new Date(user.joinDate).toLocaleString('default', { month: 'long', year: 'numeric' }) : ""
+  const email = (typeof window !== 'undefined' && localStorage.getItem('currentUser')) 
+  ? JSON.parse(localStorage.getItem('currentUser') || '{}')?.email 
+  : ''
+    const joinDate = user?.joinDate ? new Date(user.joinDate).toLocaleString('default', { month: 'long', year: 'numeric' }) : ""
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-between">
@@ -74,7 +101,11 @@ export default function ProfilePage() {
       <div className="w-full max-w-2xl px-6 md:px-10 pt-20 pb-6 flex flex-col md:flex-row md:justify-between md:items-end">
         <div className="flex-1">
           <h1 className="text-3xl font-extrabold text-white">{user?.firstName || user?.name || 'User'}{user?.lastName ? ` ${user.lastName}` : ''}</h1>
-          <div className="text-gray-400 text-lg font-medium mb-2">@{username}</div>
+          {email && (
+            <div className="text-gray-400 text-sm font-medium mb-2">
+              📧 {email}
+            </div>
+          )}
           {editMode ? (
             <>
               <textarea
@@ -102,7 +133,20 @@ export default function ProfilePage() {
               <div className="text-base text-white mb-2">{bioValue}</div>
               <div className="flex flex-wrap gap-4 text-gray-400 text-sm mb-2">
                 {locationValue && <span>📍 {locationValue}</span>}
-                {websiteValue && <span>🔗 <a href={`https://${websiteValue}`} className="underline text-emerald-400" target="_blank" rel="noopener noreferrer">{websiteValue}</a></span>}
+                {websiteValue && <span>🔗 
+                  <a
+                    href={
+                      websiteValue.startsWith('http://') || websiteValue.startsWith('https://')
+                        ? websiteValue
+                        : `https://${websiteValue}`
+                    }
+                    className="underline text-emerald-400"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {websiteValue}
+                  </a>
+                </span>}
                 <span>📅 Joined {joinDate}</span>
               </div>
             </>

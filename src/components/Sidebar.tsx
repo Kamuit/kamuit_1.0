@@ -32,7 +32,7 @@ export default function Sidebar() {
   }, [])
 
   return (
-    <aside className="fixed left-0 top-0 h-screen bg-gray-950 flex flex-col items-center px-2 py-6 w-20 md:w-72 ml-2 md:ml-8 transition-all z-40 border-r border-[#222327]">
+<aside className="hidden lg:flex fixed left-0 top-0 h-screen bg-gray-950 flex-col items-center px-2 py-6 w-20 md:w-72 ml-2 md:ml-8 transition-all z-40 border-r border-[#222327]">
       {/* Logo placeholder */}
       <div className="mb-8 flex items-center justify-center w-full">
         <div className="rounded-full bg-emerald-500 w-12 h-12 flex items-center justify-center text-2xl font-extrabold text-white">K</div>

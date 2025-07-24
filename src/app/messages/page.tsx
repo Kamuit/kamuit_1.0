@@ -11,30 +11,44 @@ export default function MessagesPage() {
   const [channels, setChannels] = useState<any[]>([])
   const [client, setClient] = useState<StreamChat | null>(null)
   const [currentUser, setCurrentUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const init = async () => {
       const userData = localStorage.getItem('currentUser')
-      if (!userData) return
+      if (!userData) {
+        setLoading(false)
+        return
+      }
 
       const parsed = JSON.parse(userData)
       setCurrentUser(parsed)
 
-      const tokenRes = await fetch(`/api/stream/token?userId=${parsed.id}`)
-      const { token } = await tokenRes.json()
+      try {
+        const tokenRes = await fetch(`/api/stream/token?userId=${parsed.id}`)
+        const { token } = await tokenRes.json()
 
-      const chatClient = StreamChat.getInstance(apiKey)
-      await chatClient.connectUser(
-        {
-          id: parsed.id,
-          name: `${parsed.firstName} ${parsed.lastName}`,
-        },
-        token
-      )
+        const chatClient = StreamChat.getInstance(apiKey)
+        await chatClient.connectUser(
+          {
+            id: parsed.id,
+            name: `${parsed.firstName} ${parsed.lastName}`,
+          },
+          token
+        )
 
-      const userChannels = await chatClient.queryChannels({ members: { $in: [parsed.id] } }, { last_message_at: -1 })
-      setChannels(userChannels)
-      setClient(chatClient)
+        const userChannels = await chatClient.queryChannels(
+          { members: { $in: [parsed.id] } },
+          { last_message_at: -1 }
+        )
+
+        setChannels(userChannels)
+        setClient(chatClient)
+      } catch (error) {
+        console.error('Error initializing chat:', error)
+      } finally {
+        setLoading(false)
+      }
     }
 
     init()
@@ -44,6 +58,14 @@ export default function MessagesPage() {
     }
   }, [])
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+        <span className="text-gray-400 text-sm animate-pulse">Loading messages...</span>
+      </div>
+    )
+  }
+
   if (!currentUser) return null
 
   return (
@@ -51,22 +73,25 @@ export default function MessagesPage() {
       <div className="w-full max-w-2xl p-4 md:p-8 bg-[#16181c] rounded-2xl shadow border border-[#222327]">
         <h1 className="text-2xl font-bold mb-6">Messages</h1>
         {channels.length === 0 ? (
-          <div className="text-gray-400 text-center py-12">No conversations yet. Connect with a ride to start chatting!</div>
+          <div className="text-gray-400 text-center py-12">
+            No conversations yet. Connect with a ride to start chatting!
+          </div>
         ) : (
           <ul className="divide-y divide-[#222327]">
             {channels.map((ch) => {
               const lastMsg = ch.state.messages[ch.state.messages.length - 1]
-              const otherMember = Object.values(ch.state.members).find((m: any) => m.user.id !== currentUser.id)
+              const otherMember = Object.values(ch.state.members).find(
+                (m: any) => m.user.id !== currentUser.id
+              )
 
               return (
                 <li key={ch.id}>
                   <Link
-                      href={`/messages/${ch.id}?userA=${currentUser.id}&userB=${otherMember.user.id}&rideId=${ch.data.rideId}`}
+                    href={`/messages/${ch.id}?userA=${currentUser.id}&userB=${otherMember.user.id}&rideId=${ch.data.rideId}`}
                     className="flex items-center gap-4 py-4 hover:bg-zinc-900 rounded-lg px-2 transition"
                   >
                     <div className="flex-1">
                       <div className="font-semibold text-white text-lg">
-                        {console.log(otherMember)}
                         {otherMember?.user?.name || 'Unknown User'}
                       </div>
                       <div className="text-gray-400 text-sm truncate max-w-xs">

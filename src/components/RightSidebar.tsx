@@ -14,17 +14,17 @@ export default function RightSidebar() {
   const [topRides, setTopRides] = useState<RidePost[]>([])
 
   useEffect(() => {
-  const fetchRides = async () => {
-    const res = await fetch('/api/top-saved-rides');
-    const data = await res.json();
-    setTopRides(data.rides || []);
-  };
-  fetchRides();
-}, []);
+    const fetchRides = async () => {
+      const res = await fetch('/api/top-saved-rides')
+      const data = await res.json()
+      setTopRides(data.rides || [])
+    }
+    fetchRides()
+  }, [])
 
   return (
     <aside
-      className="fixed right-0 top-0 h-screen w-72 hidden lg:flex flex-col px-4 py-6 bg-gray-950 border-l border-[#222327] z-40 overflow-y-auto hover:overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900"
+      className="hidden lg:flex fixed right-0 top-0 h-screen w-72 flex-col px-4 py-6 bg-gray-950 border-l border-[#222327] z-40 overflow-y-auto hover:overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900"
     >
       <h2 className="text-xl font-bold text-white mb-4">Trending Rides</h2>
 
