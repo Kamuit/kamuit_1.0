@@ -12,8 +12,7 @@
     "lint": "next lint",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:studio": "prisma studio",
-    "postinstall": "npx prisma generate && npx prisma migrate deploy"
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
@@ -24,12 +23,12 @@
     "clsx": "^2.0.0",
     "date-fns": "^2.30.0",
     "lucide-react": "^0.294.0",
-    "next": "14.0.4",
+    "next": "^14.0.4",
     "next-auth": "^4.24.5",
     "nodemailer": "^6.9.7",
     "prisma": "^5.7.1",
-    "react": "^18",
-    "react-dom": "^18",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-hook-form": "^7.48.2",
     "stream-chat": "^9.11.0",
     "stream-chat-react": "^13.2.3",

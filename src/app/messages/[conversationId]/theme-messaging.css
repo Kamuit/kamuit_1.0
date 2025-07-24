@@ -1,0 +1,57 @@
+/* Black, green, and grey theme overrides for Stream Chat messaging */
+.str-chat--custom {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+.str-chat--custom .str-chat__channel,
+.str-chat--custom .str-chat__window,
+.str-chat--custom .str-chat__main-panel {
+  background: #000 !important;
+}
+
+/* Sent messages (me) - green */
+.str-chat--custom .str-chat__message-simple--me .str-chat__message-simple-inner {
+  background: #059669 !important; /* Tailwind emerald-600 */
+  color: #fff !important;
+  border-radius: 1.25rem !important;
+}
+
+/* Received messages - grey */
+.str-chat--custom .str-chat__message-simple-inner {
+  background: #23272a !important; /* dark grey */
+  color: #fff !important;
+  border-radius: 1.25rem !important;
+}
+
+/* Input area - grey */
+.str-chat--custom .str-chat__input-flat {
+  background: #16181c !important;
+  color: #fff !important;
+  border-radius: 1.25rem !important;
+  border: 1px solid #059669 !important;
+}
+
+.str-chat--custom .str-chat__input-flat textarea {
+  background: #16181c !important;
+  color: #fff !important;
+}
+
+/* Send button - green */
+.str-chat--custom .str-chat__send-button {
+  background: #059669 !important;
+  color: #fff !important;
+  border-radius: 9999px !important;
+}
+
+/* Channel header - grey */
+.str-chat--custom .str-chat__channel-header {
+  background: #16181c !important;
+  color: #fff !important;
+}
+
+.str-chat--custom .str-chat__thread,
+.str-chat--custom .str-chat__thread-list {
+  background: #000 !important;
+  color: #fff !important;
+}

@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ArrowLeft } from 'lucide-react'
+import { CalendarIcon, CalendarDaysIcon } from '@heroicons/react/24/outline'
 
 const ridePostSchema = z.object({
   from: z.string().min(1, 'From location is required'),
@@ -74,8 +75,8 @@ export default function RidePostForm({ initialData, onComplete, onBack }: RidePo
   }
 
   const toggleHashtag = (hashtagId: string) => {
-    setSelectedHashtags(prev => 
-      prev.includes(hashtagId) 
+    setSelectedHashtags(prev =>
+      prev.includes(hashtagId)
         ? prev.filter(id => id !== hashtagId)
         : [...prev, hashtagId]
     )
@@ -132,7 +133,7 @@ export default function RidePostForm({ initialData, onComplete, onBack }: RidePo
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+            <div className="relative">
               <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
                 Date *
               </label>
@@ -140,10 +141,12 @@ export default function RidePostForm({ initialData, onComplete, onBack }: RidePo
                 {...register('date')}
                 type="date"
                 id="date"
-                className="input-field"
+                className="input-field pr-10 placeholder:uppercase" // add padding for icon and uppercase placeholder
                 min={new Date().toISOString().split('T')[0]}
                 max={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                placeholder="YYYY-MM-DD"
               />
+              <CalendarDaysIcon className="w-5 h-5 text-green-500 absolute right-3 top-9 pointer-events-none" />
               {errors.date && (
                 <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>
               )}
