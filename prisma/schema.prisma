@@ -12,7 +12,7 @@ model User {
   email           String   @unique
   firstName       String
   lastName        String
-  gender          String? 
+  gender          String?
   homeCity        String?
   isStudent       Boolean  @default(false)
   university      String?
@@ -23,14 +23,15 @@ model User {
   updatedAt       DateTime @updatedAt
   password        String
 
-  bio             String?
-  location        String?
-  website         String?
+  bio      String?
+  location String?
+  website  String?
 
   ridePosts           RidePost[]
-  sentConnections     Connection[] @relation("SentConnections")
-  receivedConnections Connection[] @relation("ReceivedConnections")
+  sentConnections     Connection[]     @relation("SentConnections")
+  receivedConnections Connection[]     @relation("ReceivedConnections")
   savedRides          SavedRide[]
+  contactMessages     ContactMessage[] // ✅ Add this line
 
   @@map("users")
 }
@@ -118,6 +119,24 @@ model VerificationCode {
   code      String
   createdAt DateTime @default(now())
   expiresAt DateTime
+}
+
+model ContactMessage {
+  id        String      @id @default(cuid())
+  userId    String? // Optional
+  contact   String
+  message   String
+  type      MessageType
+  createdAt DateTime    @default(now())
+
+  user User? @relation(fields: [userId], references: [id]) // ✅ Now has a reverse relation
+
+  @@map("contact_messages")
+}
+
+enum MessageType {
+  FEEDBACK
+  CONTACT
 }
 
 enum RideType {

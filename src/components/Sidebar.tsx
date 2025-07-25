@@ -10,8 +10,8 @@ const links = [
   { href: '/messages', icon: MessageCircle, label: 'Messages', aria: 'Messages' },
   // New section
   { href: '/about', icon: Info, label: 'About Kamuit', aria: 'About Kamuit' },
-  { href: '/help', icon: LifeBuoy, label: 'Contact / Help', aria: 'Contact / Help' },
-  { href: '/activity', icon: ClipboardList, label: 'My Activity', aria: 'My Activity' },
+  { href: '/contact', icon: LifeBuoy, label: 'Contact / Help', aria: 'Contact / Help' },
+  // { href: '/activity', icon: ClipboardList, label: 'My Activity', aria: 'My Activity' },
   { href: '/profile', icon: User, label: 'Profile', aria: 'Profile' },
 ]
 

@@ -16,6 +16,8 @@ export default function ProfilePage() {
   // All hooks at the top!
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<UserProfile | null>(null)
+  const [myPosts, setMyPosts] = useState([])
+  const [showMyPosts, setShowMyPosts] = useState(false)
   const [editMode, setEditMode] = useState(false)
   const [bioValue, setBioValue] = useState("")
   const [locationValue, setLocationValue] = useState("")
@@ -52,6 +54,30 @@ useEffect(() => {
       setWebsiteValue(user.website || "")
     }
   }, [user])
+
+  const fetchMyPosts = async () => {
+    if (!user?.id) return
+    const res = await fetch(`/api/ride-posts/user/${user.id}`)
+    const data = await res.json()
+    setMyPosts(data)
+  }
+
+  const handleDeletePost = async (postId: string) => {
+  const confirmDelete = window.confirm('Are you sure you want to delete this post?')
+  if (!confirmDelete) return
+
+  try {
+    await fetch('/api/ride-posts/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postId }),
+    })
+
+    setMyPosts(prev => prev.filter((post: any) => post.id !== postId))
+  } catch (err) {
+    console.error('Delete failed:', err)
+  }
+}
 
 const handleSave = async () => {
   const updatedUser = { ...user, bio: bioValue, location: locationValue, website: websiteValue }
@@ -159,7 +185,44 @@ const handleSave = async () => {
             <button className="rounded-full border border-emerald-400 text-emerald-400 px-6 py-2 font-semibold hover:bg-emerald-400 hover:text-black transition" onClick={() => setEditMode(true)}>Edit profile</button>
           )}
         </div>
+        <button
+          onClick={() => {
+            if (!showMyPosts) fetchMyPosts()
+            setShowMyPosts(!showMyPosts)
+          }}
+          className="rounded-full border border-blue-400 text-blue-400 px-6 py-2 font-semibold hover:bg-blue-400 hover:text-black transition"
+        >
+          {showMyPosts ? "Hide My Posts" : "My Posts"}
+        </button>
       </div>
+      {showMyPosts && (
+          <div className="w-full max-w-2xl mt-6 px-4">
+            <h2 className="text-xl font-semibold mb-4">My Ride Posts</h2>
+            {myPosts.length === 0 ? (
+              <p className="text-gray-400">You have no ride posts yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {myPosts.map((post: any) => (
+                  <div key={post.id} className="p-4 bg-zinc-800 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <div>
+                        <p className="font-semibold">{post.from} → {post.to}</p>
+                        <p className="text-sm text-gray-400">{new Date(post.date).toLocaleDateString()}</p>
+                      </div>
+                      <button
+                        onClick={() => handleDeletePost(post.id)}
+                        className="text-red-400 hover:text-red-600 text-sm"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                    {post.notes && <p className="text-sm text-gray-300">{post.notes}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       <div className="w-full max-w-2xl px-6 md:px-10 mt-4">
         <div className="w-full max-w-2xl px-6 md:px-10 mt-6 mb-8">
           <button
