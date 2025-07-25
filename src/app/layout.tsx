@@ -27,8 +27,8 @@ export default function RootLayout({
         <Sidebar currentUser={currentUser}  />
         <BottomNav />
         <div className="min-h-screen flex justify-center bg-black">
-        <main className="w-full max-w-6xl min-h-screen bg-black ml-0 md:ml-60 transition-all px-4 sm:px-6 md:px-8 mx-auto">
-              {children}
+<main className="w-full max-w-6xl min-h-screen bg-black ml-0 lg:ml-60 transition-all px-4 sm:px-6 md:px-8 lg:pr-72 mx-auto">
+                {children}
           </main>
           <RightSidebar />
         </div>

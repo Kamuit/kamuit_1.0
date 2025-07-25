@@ -114,7 +114,7 @@ const handleSave = async () => {
     const joinDate = user?.joinDate ? new Date(user.joinDate).toLocaleString('default', { month: 'long', year: 'numeric' }) : ""
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-between">
+    <div className="min-h-screen bg-black text-white flex flex-col items-center pt-24 pb-28 px-4">
       {/* Banner */}
       <div className="w-full max-w-2xl h-48 md:h-64 bg-zinc-800 relative rounded-b-2xl overflow-hidden">
         <img src={bannerUrl} alt="Banner" className="object-cover w-full h-full" />
@@ -178,22 +178,33 @@ const handleSave = async () => {
             </>
           )}
         </div>
-        <div className="mt-4 md:mt-0">
-          {editMode ? (
-            <button className="rounded-full border border-emerald-400 text-emerald-400 px-6 py-2 font-semibold hover:bg-emerald-400 hover:text-black transition mr-2" onClick={handleSave}>Save</button>
-          ) : (
-            <button className="rounded-full border border-emerald-400 text-emerald-400 px-6 py-2 font-semibold hover:bg-emerald-400 hover:text-black transition" onClick={() => setEditMode(true)}>Edit profile</button>
-          )}
-        </div>
-        <button
-          onClick={() => {
-            if (!showMyPosts) fetchMyPosts()
-            setShowMyPosts(!showMyPosts)
-          }}
-          className="rounded-full border border-blue-400 text-blue-400 px-6 py-2 font-semibold hover:bg-blue-400 hover:text-black transition"
-        >
-          {showMyPosts ? "Hide My Posts" : "My Posts"}
-        </button>
+        <div className="flex flex-col md:flex-row gap-4 mt-4 md:mt-0">
+  {editMode ? (
+    <button
+      className="w-full md:w-auto rounded-full border border-emerald-400 text-emerald-400 px-6 py-2 font-semibold hover:bg-emerald-400 hover:text-black transition"
+      onClick={handleSave}
+    >
+      Save
+    </button>
+  ) : (
+    <button
+      className="w-full md:w-auto rounded-full border border-emerald-400 text-emerald-400 px-6 py-2 font-semibold hover:bg-emerald-400 hover:text-black transition"
+      onClick={() => setEditMode(true)}
+    >
+      Edit profile
+    </button>
+  )}
+  <button
+    onClick={() => {
+      if (!showMyPosts) fetchMyPosts()
+      setShowMyPosts(!showMyPosts)
+    }}
+    className="w-full md:w-auto rounded-full border border-blue-400 text-blue-400 px-6 py-2 font-semibold hover:bg-blue-400 hover:text-black transition"
+  >
+    {showMyPosts ? "Hide My Posts" : "My Posts"}
+  </button>
+</div>
+        
       </div>
       {showMyPosts && (
           <div className="w-full max-w-2xl mt-6 px-4">
@@ -223,8 +234,7 @@ const handleSave = async () => {
             )}
           </div>
         )}
-      <div className="w-full max-w-2xl px-6 md:px-10 mt-4">
-        <div className="w-full max-w-2xl px-6 md:px-10 mt-6 mb-8">
+      <div className="w-full max-w-2xl px-6 md:px-10 mt-10 mb-12">
           <button
             className="w-full bg-zinc-800 hover:bg-zinc-700 text-white rounded-full py-3 text-base font-semibold transition"
             onClick={() => {
@@ -235,7 +245,6 @@ const handleSave = async () => {
           >
             Log Out
           </button>
-        </div>
       </div>
     </div>
   )

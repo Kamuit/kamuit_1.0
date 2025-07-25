@@ -109,18 +109,22 @@ export default function ConversationPage() {
     return <div className="text-white p-4">Loading chat...</div>
   }
 
-  return (
-    <div className="h-screen bg-black text-white">
-      <Chat client={chatClient} theme="messaging light">
-        <Channel channel={channel}>
-          <Window>
-            <ChannelHeader />
+return (
+  <div className="fixed inset-0 flex flex-col bg-black text-white md:static md:h-screen pt-20 pb-28">
+    <Chat client={chatClient} theme="messaging dark">
+      <Channel channel={channel}>
+        <Window>
+          <ChannelHeader />
+          <div className="flex-1 overflow-y-auto bg-black">
             <MessageList />
+          </div>
+          <div className="bg-black px-2 pb-4 pt-1">
             <MessageInput />
-          </Window>
-          <Thread />
-        </Channel>
-      </Chat>
-    </div>
-  )
+          </div>
+        </Window>
+        <Thread />
+      </Channel>
+    </Chat>
+  </div>
+)
 }

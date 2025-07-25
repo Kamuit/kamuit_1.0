@@ -5,8 +5,7 @@ import Link from "next/link"
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-black text-white px-6 md:px-16 py-12 max-w-5xl mx-auto space-y-12">
-
+<div className="min-h-screen bg-black text-white px-4 sm:px-6 md:px-16 mt-20 mb-20 max-w-5xl mx-auto space-y-12">
       {/* Welcome Section */}
       <section>
         <h1 className="text-3xl md:text-4xl font-extrabold mb-4">Welcome to Kamuit 1.0</h1>

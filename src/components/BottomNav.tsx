@@ -10,7 +10,7 @@ const links = [
   { href: '/saved', icon: Heart, label: 'Saved', aria: 'Saved' },
   { href: '/messages', icon: MessageCircle, label: 'Messages', aria: 'Messages' },
   { href: '/about', icon: Info, label: 'About Kamuit', aria: 'About Kamuit' },
-  { href: '/help', icon: LifeBuoy, label: 'Contact / Help', aria: 'Contact / Help' },
+  { href: '/contact', icon: LifeBuoy, label: 'Contact / Help', aria: 'Contact / Help' },
   // { href: '/profile', icon: User, label: 'Profile', aria: 'Profile' },
 ]
 
