@@ -350,7 +350,7 @@ const username = user?.name ? user.name.toLowerCase().replace(/\s+/g, "") : "use
               ))
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-400">You haven't posted any rides yet.</p>
+                <p className="text-gray-400">You haven`t posted any rides yet.</p>
                 <button
                   onClick={() => router.push('/home')}
                   className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition"
@@ -432,7 +432,7 @@ const username = user?.name ? user.name.toLowerCase().replace(/\s+/g, "") : "use
               ))
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-400">You haven't saved any rides yet.</p>
+                <p className="text-gray-400">You haven`t saved any rides yet.</p>
               </div>
             )}
           </div>
@@ -441,7 +441,7 @@ const username = user?.name ? user.name.toLowerCase().replace(/\s+/g, "") : "use
       {/* Other User's Rides Section */}
       {userId && userId !== profileUser?.id && (
         <div className="w-full max-w-2xl px-6 md:px-10 mt-8">
-          <h2 className="text-2xl font-bold text-white mb-6">{profileUser?.firstName || profileUser?.name || 'User'}'s Rides</h2>
+          <h2 className="text-2xl font-bold text-white mb-6">{profileUser?.firstName || profileUser?.name || 'User'}`s Rides</h2>
           <div className="flex flex-col gap-4">
             {otherUserPosts.length > 0 ? (
               otherUserPosts.map((post) => (
@@ -508,7 +508,7 @@ const username = user?.name ? user.name.toLowerCase().replace(/\s+/g, "") : "use
               ))
             ) : (
               <div className="text-center py-8">
-                <p className="text-gray-400">This user hasn't posted any rides yet.</p>
+                <p className="text-gray-400">This user hasn`t posted any rides yet.</p>
               </div>
             )}
           </div>

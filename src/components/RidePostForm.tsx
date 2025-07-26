@@ -125,8 +125,8 @@ export default function RidePostForm({
           <div className="bg-yellow-100 border-l-4 border-yellow-400 p-4 mb-6 rounded-md text-sm text-yellow-800">
             <p className="font-semibold mb-1">✨ Before offering a ride...</p>
             <p>
-              You&#39;re about to invite strangers into your ride. Drive responsibly, communicate clearly,
-              don’t cancel last minute, and maybe... clean the back seat? 😅 <br />
+              You`re about to invite strangers into your ride. Drive responsibly, communicate clearly,
+              don`t cancel last minute, and maybe... clean the back seat? 😅 <br />
               Safety first – for them and for you.
             </p>
           </div>

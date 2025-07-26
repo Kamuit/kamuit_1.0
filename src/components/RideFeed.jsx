@@ -283,7 +283,7 @@ export default function RideFeed({ posts = [], setPosts, handleConnect, showFilt
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
               <div className="bg-[#16181c] rounded-2xl shadow-xl border border-[#222327] max-w-sm w-full p-6 text-center">
                 <h2 className="text-xl font-bold text-white mb-2">Whoa there! 🛑</h2>
-                <p className="text-gray-300 mb-4">This field can't be edited. If you really want to change it, just create a new ride post. Don't be lazy 😛</p>
+                <p className="text-gray-300 mb-4">This field can`t be edited. If you really want to change it, just create a new ride post. Don`t be lazy 😛</p>
                 <button
                   onClick={() => setFunnyModal(false)}
                   className="mt-2 px-4 py-2 rounded-full bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition"
