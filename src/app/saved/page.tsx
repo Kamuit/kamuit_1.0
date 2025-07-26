@@ -38,18 +38,18 @@ export default function SavedRidesPage() {
     )
   }
 
-  return (
-    <div className="min-h-screen w-full bg-black text-white px-2 sm:px-4 py-6 overflow-y-auto">
-      <div className="w-full max-w-4xl mx-auto">
-        <h1 className="text-xl sm:text-2xl font-bold mb-4 px-2 sm:px-0">Saved Rides</h1>
-        <RideFeed
-          posts={posts}
-          setPosts={setPosts}
-          handleConnect={() => {}}
-          showFilters={false}
-          setShowFilters={() => {}}
-        />
-      </div>
+return (
+  <div className="min-h-screen w-full bg-black text-white px-2 sm:px-4 py-6 overflow-y-auto lg:ml-60 lg:mr-[20rem]">
+    <div className="w-full max-w-4xl mx-auto">
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 px-2 sm:px-0">Saved Rides</h1>
+      <RideFeed
+        posts={posts}
+        setPosts={setPosts}
+        handleConnect={() => {}}
+        showFilters={false}
+        setShowFilters={() => {}}
+      />
     </div>
-  )
+  </div>
+)
 }

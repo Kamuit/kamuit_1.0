@@ -16,12 +16,28 @@ export async function POST(req: NextRequest) {
     });
 
     if (existing) {
-      await prisma.savedRide.delete({ where: { id: existing.id } });
+      // Unsaving: delete savedRide and decrement count
+      await prisma.$transaction([
+        prisma.savedRide.delete({ where: { id: existing.id } }),
+        prisma.ridePost.update({
+          where: { id: ridePostId },
+          data: { saveCount: { decrement: 1 } },
+        }),
+      ]);
+
       return NextResponse.json({ saved: false });
     } else {
-      await prisma.savedRide.create({
-        data: { userId, ridePostId },
-      });
+      // Saving: create savedRide and increment count
+      await prisma.$transaction([
+        prisma.savedRide.create({
+          data: { userId, ridePostId },
+        }),
+        prisma.ridePost.update({
+          where: { id: ridePostId },
+          data: { saveCount: { increment: 1 } },
+        }),
+      ]);
+
       return NextResponse.json({ saved: true });
     }
   } catch (err) {

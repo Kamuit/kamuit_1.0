@@ -5,7 +5,8 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ArrowLeft } from 'lucide-react'
-import { CalendarIcon, CalendarDaysIcon } from '@heroicons/react/24/outline'
+import { CalendarDaysIcon } from '@heroicons/react/24/outline'
+
 const ridePostSchema = z.object({
   from: z.string().min(1, 'From location is required'),
   to: z.string().min(1, 'To location is required'),
@@ -35,6 +36,8 @@ interface RidePostFormProps {
   }
   onComplete: (data: RidePostFormData & { type: 'OFFER' | 'REQUEST'; hashtags: string[] }) => void
   onBack: () => void
+  readOnlyFields?: string[]
+  onFieldClick?: (field: string) => void
 }
 
 const hashtagOptions = [
@@ -48,7 +51,13 @@ const hashtagOptions = [
   { id: 'SameCollege', label: 'Same College' },
 ]
 
-export default function RidePostForm({ initialData, onComplete, onBack }: RidePostFormProps) {
+export default function RidePostForm({
+  initialData,
+  onComplete,
+  onBack,
+  readOnlyFields = [],
+  onFieldClick,
+}: RidePostFormProps) {
   const [selectedHashtags, setSelectedHashtags] = useState<string[]>(initialData.hashtags)
   const [type] = useState<'OFFER' | 'REQUEST'>(initialData.type)
   const dateInputRef = useRef<HTMLInputElement>(null)
@@ -84,21 +93,21 @@ export default function RidePostForm({ initialData, onComplete, onBack }: RidePo
   })
 
   const onSubmit = (data: RidePostFormData) => {
-    onComplete({ ...data, date: data.date, type, hashtags: selectedHashtags })
+    onComplete({ ...data, type, hashtags: selectedHashtags })
   }
 
   const toggleHashtag = (hashtagId: string) => {
+    if (readOnlyFields.includes('hashtags')) {
+      onFieldClick?.('hashtags')
+      return
+    }
+
     setSelectedHashtags(prev =>
       prev.includes(hashtagId)
         ? prev.filter(id => id !== hashtagId)
         : [...prev, hashtagId]
     )
   }
-
-  const today = new Date().toISOString().split('T')[0]
-  const twoMonthsLater = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split('T')[0]
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -112,48 +121,74 @@ export default function RidePostForm({ initialData, onComplete, onBack }: RidePo
           </h2>
         </div>
 
+        {type === 'OFFER' && (
+          <div className="bg-yellow-100 border-l-4 border-yellow-400 p-4 mb-6 rounded-md text-sm text-yellow-800">
+            <p className="font-semibold mb-1">✨ Before offering a ride...</p>
+            <p>
+              You&#39;re about to invite strangers into your ride. Drive responsibly, communicate clearly,
+              don’t cancel last minute, and maybe... clean the back seat? 😅 <br />
+              Safety first – for them and for you.
+            </p>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="from" className="block text-sm font-medium text-gray-700 mb-1">From *</label>
-              <input {...register('from')} id="from" className="input-field" placeholder="e.g. Chennai" />
+              <input
+                {...register('from')}
+                id="from"
+                className="input-field"
+                placeholder="e.g. Chennai"
+                readOnly={readOnlyFields.includes('from')}
+                disabled={readOnlyFields.includes('from')}
+                onClick={() => readOnlyFields.includes('from') && onFieldClick?.('from')}
+              />
               {errors.from && <p className="text-red-500 text-sm mt-1">{errors.from.message}</p>}
             </div>
             <div>
               <label htmlFor="to" className="block text-sm font-medium text-gray-700 mb-1">To *</label>
-              <input {...register('to')} id="to" className="input-field" placeholder="e.g. Bengaluru" />
+              <input
+                {...register('to')}
+                id="to"
+                className="input-field"
+                placeholder="e.g. Bengaluru"
+                readOnly={readOnlyFields.includes('to')}
+                disabled={readOnlyFields.includes('to')}
+                onClick={() => readOnlyFields.includes('to') && onFieldClick?.('to')}
+              />
               {errors.to && <p className="text-red-500 text-sm mt-1">{errors.to.message}</p>}
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative">
-              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
-                Date *
-              </label>
+              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">Date *</label>
               <input
                 {...register('date')}
                 type="date"
                 id="date"
-                className="input-field pr-10 placeholder:uppercase" // add padding for icon and uppercase placeholder
+                className="input-field pr-10 placeholder:uppercase"
                 min={new Date().toISOString().split('T')[0]}
                 max={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
                 placeholder="YYYY-MM-DD"
+                readOnly={readOnlyFields.includes('date')}
+                disabled={readOnlyFields.includes('date')}
+                onClick={() => readOnlyFields.includes('date') && onFieldClick?.('date')}
               />
               <CalendarDaysIcon className="w-5 h-5 text-green-500 absolute right-3 top-9 pointer-events-none" />
-              {errors.date && (
-                <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>
-              )}
+              {errors.date && <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>}
             </div>
 
             <div>
-              <label htmlFor="timeOfDay" className="block text-sm font-medium text-gray-700 mb-1">
-                Time of Day *
-              </label>
+              <label htmlFor="timeOfDay" className="block text-sm font-medium text-gray-700 mb-1">Time of Day *</label>
               <select
                 {...register('timeOfDay')}
                 id="timeOfDay"
                 className="input-field"
+                disabled={readOnlyFields.includes('timeOfDay')}
+                onClick={() => readOnlyFields.includes('timeOfDay') && onFieldClick?.('timeOfDay')}
               >
                 <option value="MORNING">Morning</option>
                 <option value="NOON">Noon</option>
@@ -194,6 +229,9 @@ export default function RidePostForm({ initialData, onComplete, onBack }: RidePo
               rows={3}
               className="input-field"
               placeholder="Any additional details..."
+              readOnly={readOnlyFields.includes('notes')}
+              disabled={readOnlyFields.includes('notes')}
+              onClick={() => readOnlyFields.includes('notes') && onFieldClick?.('notes')}
             />
           </div>
 
@@ -205,11 +243,12 @@ export default function RidePostForm({ initialData, onComplete, onBack }: RidePo
                   key={h.id}
                   type="button"
                   onClick={() => toggleHashtag(h.id)}
+                  disabled={readOnlyFields.includes('hashtags')}
                   className={`px-3 py-2 text-sm rounded-full border transition-colors ${
                     selectedHashtags.includes(h.id)
                       ? 'bg-primary-100 border-primary-300 text-primary-700'
                       : 'bg-white border-gray-300 text-gray-700 hover:border-primary-300'
-                  }`}
+                  } ${readOnlyFields.includes('hashtags') ? 'cursor-not-allowed opacity-50' : ''}`}
                 >
                   {h.label}
                 </button>

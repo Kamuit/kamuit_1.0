@@ -100,7 +100,10 @@ export default function HomePage() {
   }
 
 return (
-<div className="min-h-screen w-full bg-black text-white px-2 sm:px-4 py-6 lg:pl-[20rem]">    <RideFeed
+<div className="min-h-screen bg-black text-white px-2 sm:px-4 py-6 flex justify-center">
+
+  <div className="w-full max-w-6xl">
+    <RideFeed
       posts={posts}
       setPosts={setPosts}
       handleConnect={() => {}}
@@ -182,6 +185,7 @@ return (
     </div>
   </div>
 )}
+</div>
     </div>
   )
 }

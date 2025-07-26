@@ -56,7 +56,7 @@ model RidePost {
   hashtags     RidePostHashtag[]
   connections  Connection[]
   savedByUsers SavedRide[]
-
+  saveCount    Int?
   @@map("ride_posts")
 }
 

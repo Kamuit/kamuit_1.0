@@ -34,7 +34,7 @@ export default function ContactPage() {
   };
 
   return (
-      <div className="min-h-screen bg-black text-white flex flex-col justify-center px-4 py-6 sm:py-10">
+      <div className="min-h-screen bg-black text-white flex flex-col justify-center px-4 py-6 sm:py-10 lg:ml-60 lg:mr-[20rem]">
         <div className="max-w-md w-full">
         <div className="flex space-x-4 mb-6">
           <button
