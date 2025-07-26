@@ -13,12 +13,13 @@ import {
 } from 'stream-chat-react'
 import { StreamChat } from 'stream-chat'
 import 'stream-chat-react/dist/css/v2/index.css'
+import './theme-messaging.css'; // <-- Add this import for custom theme
 
 const apiKey = process.env.NEXT_PUBLIC_STREAM_API_KEY!
 
 export default function ConversationPage() {
   const { conversationId } = useParams()
-  const searchParams = useSearchParams() // ✅ move outside useEffect
+  const searchParams = useSearchParams() // move outside useEffect
 
   const userA = searchParams.get('userA')
   const userB = searchParams.get('userB')
@@ -108,6 +109,7 @@ export default function ConversationPage() {
   if (!channel || !chatClient || !currentUser) {
     return <div className="text-white p-4">Loading chat...</div>
   }
+
 
 return (
   <div className="fixed inset-0 flex flex-col bg-black text-white md:static md:h-screen pt-20 pb-28">

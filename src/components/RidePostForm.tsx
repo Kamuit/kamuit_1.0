@@ -4,8 +4,8 @@ import { useState, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { ArrowLeft, Calendar } from 'lucide-react'
-
+import { ArrowLeft } from 'lucide-react'
+import { CalendarIcon, CalendarDaysIcon } from '@heroicons/react/24/outline'
 const ridePostSchema = z.object({
   from: z.string().min(1, 'From location is required'),
   to: z.string().min(1, 'To location is required'),
@@ -87,9 +87,11 @@ export default function RidePostForm({ initialData, onComplete, onBack }: RidePo
     onComplete({ ...data, date: data.date, type, hashtags: selectedHashtags })
   }
 
-  const toggleHashtag = (id: string) => {
+  const toggleHashtag = (hashtagId: string) => {
     setSelectedHashtags(prev =>
-      prev.includes(id) ? prev.filter(tag => tag !== id) : [...prev, id]
+      prev.includes(hashtagId)
+        ? prev.filter(id => id !== hashtagId)
+        : [...prev, hashtagId]
     )
   }
 
@@ -126,28 +128,33 @@ export default function RidePostForm({ initialData, onComplete, onBack }: RidePo
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative">
-  <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">Date *</label>
-  <input
-    type="date"
-    id="date"
-    {...register('date')}
-    ref={(el) => {
-      register('date').ref(el)
-      dateInputRef.current = el
-    }}
-    className="input-field px-4 placeholder:text-sm"
-    min={today}
-    max={twoMonthsLater}
-  />
-  <Calendar
-    onClick={() => dateInputRef.current?.showPicker()}
-    className="absolute right-3 top-9 h-5 w-5 text-gray-500 cursor-pointer"
-  />
-  {errors.date && <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>}
-</div>
+              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
+                Date *
+              </label>
+              <input
+                {...register('date')}
+                type="date"
+                id="date"
+                className="input-field pr-10 placeholder:uppercase" // add padding for icon and uppercase placeholder
+                min={new Date().toISOString().split('T')[0]}
+                max={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                placeholder="YYYY-MM-DD"
+              />
+              <CalendarDaysIcon className="w-5 h-5 text-green-500 absolute right-3 top-9 pointer-events-none" />
+              {errors.date && (
+                <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>
+              )}
+            </div>
+
             <div>
-              <label htmlFor="timeOfDay" className="block text-sm font-medium text-gray-700 mb-1">Time of Day *</label>
-              <select {...register('timeOfDay')} id="timeOfDay" className="input-field">
+              <label htmlFor="timeOfDay" className="block text-sm font-medium text-gray-700 mb-1">
+                Time of Day *
+              </label>
+              <select
+                {...register('timeOfDay')}
+                id="timeOfDay"
+                className="input-field"
+              >
                 <option value="MORNING">Morning</option>
                 <option value="NOON">Noon</option>
                 <option value="EVENING">Evening</option>
