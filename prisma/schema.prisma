@@ -163,3 +163,14 @@ enum ConnectionStatus {
   REJECTED
   CANCELLED
 }
+
+model University {
+  id          String   @id @default(cuid())
+  institution String   @map("Institution Name")
+  city        String?
+  state       String?
+  website     String?
+  domain      String?
+  logoUrl     String   @map("Clearbit Logo URL")
+  createdAt   DateTime @default(now())
+}

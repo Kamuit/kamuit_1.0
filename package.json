@@ -21,6 +21,7 @@
     "@prisma/client": "^5.7.1",
     "bcryptjs": "^3.0.2",
     "clsx": "^2.0.0",
+    "csv-parse": "^6.1.0",
     "date-fns": "^2.30.0",
     "lucide-react": "^0.294.0",
     "next": "^14.0.4",
@@ -37,6 +38,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/csv-parse": "^1.1.12",
     "@types/node": "^20.19.8",
     "@types/nodemailer": "^6.4.14",
     "@types/react": "^18",

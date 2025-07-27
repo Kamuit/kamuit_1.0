@@ -72,6 +72,9 @@ export default function RidePostForm({
     }
     return new Date().toISOString().split('T')[0]
   }
+  const isReadOnly = (field: string) => readOnlyFields.includes(field)
+  const readOnlyClass = (field: string) =>
+    isReadOnly(field) ? 'bg-gray-100 text-gray-500 cursor-not-allowed opacity-60' : ''
 
   const defaultISODate = safeConvertToISODate(initialData.date)
 
@@ -139,7 +142,7 @@ export default function RidePostForm({
               <input
                 {...register('from')}
                 id="from"
-                className="input-field"
+                className={`input-field ${readOnlyClass('from')}`}
                 placeholder="e.g. Chennai"
                 readOnly={readOnlyFields.includes('from')}
                 disabled={readOnlyFields.includes('from')}
@@ -152,7 +155,7 @@ export default function RidePostForm({
               <input
                 {...register('to')}
                 id="to"
-                className="input-field"
+                className={`input-field ${readOnlyClass('from')}`}
                 placeholder="e.g. Bengaluru"
                 readOnly={readOnlyFields.includes('to')}
                 disabled={readOnlyFields.includes('to')}
@@ -169,7 +172,7 @@ export default function RidePostForm({
                 {...register('date')}
                 type="date"
                 id="date"
-                className="input-field pr-10 placeholder:uppercase"
+                className={`input-field ${readOnlyClass('from')}`}
                 min={new Date().toISOString().split('T')[0]}
                 max={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
                 placeholder="YYYY-MM-DD"
@@ -186,7 +189,7 @@ export default function RidePostForm({
               <select
                 {...register('timeOfDay')}
                 id="timeOfDay"
-                className="input-field"
+                className={`input-field ${readOnlyClass('from')}`}
                 disabled={readOnlyFields.includes('timeOfDay')}
                 onClick={() => readOnlyFields.includes('timeOfDay') && onFieldClick?.('timeOfDay')}
               >
@@ -227,7 +230,7 @@ export default function RidePostForm({
               {...register('notes')}
               id="notes"
               rows={3}
-              className="input-field"
+              className={`input-field ${readOnlyClass('from')}`}
               placeholder="Any additional details..."
               readOnly={readOnlyFields.includes('notes')}
               disabled={readOnlyFields.includes('notes')}

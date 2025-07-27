@@ -16,6 +16,9 @@ export default function RideFeed({ posts = [], setPosts, handleConnect, showFilt
   const [editDialog, setEditDialog] = useState({ open: false, post: null });
   const [funnyModal, setFunnyModal] = useState(false);
 
+  const isOldPost = (postDate) => new Date(postDate) < new Date()
+
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const user = localStorage.getItem('currentUser')
@@ -64,6 +67,7 @@ export default function RideFeed({ posts = [], setPosts, handleConnect, showFilt
 
   const toggleSaveRide = async (rideId) => {
     const user = JSON.parse(localStorage.getItem('currentUser') || '{}')
+    console.log('Current user:', user)
     if (!user?.id) {
       alert('Please log in to save rides.')
       router.push('/login')
@@ -212,8 +216,8 @@ export default function RideFeed({ posts = [], setPosts, handleConnect, showFilt
       )}
 
       <div className="mb-6">
-        <div className="bg-black min-h-screen w-full overflow-x-hidden px-4 sm:px-6 md:px-8 py-6">
-          <div className="mb-8 mt-2 text-left w-full">
+<div className="bg-black min-h-screen w-full max-w-2xl mx-auto overflow-x-hidden px-4 sm:px-6 md:px-8 py-6">
+            <div className="mb-8 mt-2 text-left w-full">
             <button onClick={() => setShowFilters(!showFilters)} className="flex items-center gap-2 px-4 my-4 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-emerald-400 font-semibold">
               <svg className="px-1 h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h8m-8 6h16" />
@@ -224,7 +228,22 @@ export default function RideFeed({ posts = [], setPosts, handleConnect, showFilt
 
           <div className="flex flex-col gap-8 items-start w-full">
             {sortedPostsWithExpiry.map((post) => (
-              <div key={post.id} className="w-full">
+              <div key={post.id} className={`w-full ${isOldPost(post.date) ? 'opacity-50 grayscale pointer-events-none select-none' : ''}`}>
+                {post?.user?.firstName && (
+                  <div className="mb-1">
+                    <button
+                      onClick={() => router.push(`/profile/${post.user.id}`)}
+                      className="text-white font-semibold text-sm hover:underline"
+                    >
+                      {post.user.firstName} {post.user.lastName}
+                    </button>
+                  </div>
+                )}
+                {isOldPost(post.date) && (
+                  <span className="inline-block bg-red-900 text-red-300 text-xs font-semibold px-3 py-1 rounded-full mb-2">
+                    Expired Ride
+                  </span>
+                )}
                 <div className="text-xs text-gray-400 mb-2 flex flex-wrap gap-4">
                   <div className="flex items-center gap-1"><Calendar className="h-4 w-4" /><span>{new Date(post.date).toLocaleDateString()}</span></div>
                   <div className="flex items-center gap-1"><Clock className="h-4 w-4" /><span>{getTimeOfDayLabel(post.timeOfDay)}</span></div>
@@ -234,39 +253,72 @@ export default function RideFeed({ posts = [], setPosts, handleConnect, showFilt
 
                 {post.notes && <p className="text-sm text-gray-300 mb-2 whitespace-pre-line">{post.notes}</p>}
                 {post.hashtags?.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {post.hashtags.map((hashtag) => (
-                      <span key={hashtag} className="px-3 py-1 bg-[#111] text-twitterBlue text-xs font-semibold rounded-full">#{hashtag}</span>
-                    ))}
-                  </div>
-                )}
+  <div className="flex flex-wrap gap-2 mb-2">
+    {post.hashtags.map((hashtagObj) => (
+      <span
+        key={hashtagObj.id}
+        className="px-3 py-1 bg-[#111] text-twitterBlue text-xs font-semibold rounded-full"
+      >
+        #{hashtagObj.hashtagId?.replace('hashtag-', '')}
+      </span>
+    ))}
+  </div>
+)}
 
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mt-2">
-                  <span className="text-xs text-gray-500 truncate">Contact: {post.contactInfo}</span>
-                  {post.user.id === getCurrentUser()?.id ? (
-                    <div className="flex gap-2 w-full sm:w-auto">
-                      <button onClick={() => setDeleteDialog({ open: true, postId: post.id })} className="px-4 py-1 text-sm rounded-lg bg-red-700 text-white hover:bg-red-800 transition-colors w-full sm:w-auto">Delete</button>
-                      <button onClick={() => setEditDialog({ open: true, post })} className="px-4 py-1 text-sm rounded-lg bg-blue-700 text-white hover:bg-blue-800 transition-colors w-full sm:w-auto">Edit</button>
-                    </div>
-                  ) : (
-                    <div className="flex gap-2 w-full sm:w-auto">
-                      <button onClick={() => toggleSaveRide(post.id)} className={`flex items-center justify-center w-full sm:w-auto space-x-2 px-4 py-1 text-sm rounded-md transition-colors ${savedRides.includes(post.id) ? 'bg-emerald-900 text-emerald-400' : 'bg-zinc-800 text-gray-300 hover:bg-zinc-700'}`}>
-                        <Heart className={`h-4 w-4 ${savedRides.includes(post.id) ? 'fill-emerald-400' : 'stroke-2'}`} fill={savedRides.includes(post.id) ? '#34d399' : 'none'} />
-                        <span>{savedRides.includes(post.id) ? 'Saved' : 'Interested'}</span>
-                      </button>
-                      <button onClick={() => handleConnectClick(post)} className="bg-blue-700 text-white hover:bg-blue-600 flex items-center space-x-2 px-4 py-1 text-sm rounded-md w-full sm:w-auto">
-                        <MessageCircle className="h-4 w-4" />
-                        <span>Connect</span>
-                      </button>
-                    </div>
-                    
-                  )}
-                  {typeof post.saveCount === 'number' && post.saveCount > 1 && (
-                    <div className="mt-1 text-xs text-emerald-400">
-                      {`${post.saveCount - 1}+ interested`}
-                    </div>
-                  )}
-                </div>
+<div className="flex justify-between items-center flex-wrap mt-2 gap-2">
+  {/* Left: Interested count or empty for spacing */}
+  <div className="text-xs text-emerald-400 min-w-[120px]">
+    {typeof post.saveCount === 'number' && post.saveCount > 1
+      ? `${post.saveCount - 1}+ interested`
+      : ''}
+  </div>
+
+  {/* Right: Action buttons */}
+  <div className="flex gap-2 w-full sm:w-auto justify-end">
+    {post.user.id === getCurrentUser()?.id ? (
+      <>
+        <button
+          onClick={() => setDeleteDialog({ open: true, postId: post.id })}
+          className="px-4 py-1 text-sm rounded-lg bg-red-700 text-white hover:bg-red-800 transition-colors"
+        >
+          Delete
+        </button>
+        <button
+          onClick={() => setEditDialog({ open: true, post })}
+          className="px-4 py-1 text-sm rounded-lg bg-blue-700 text-white hover:bg-blue-800 transition-colors"
+        >
+          Edit
+        </button>
+      </>
+    ) : (
+      <>
+        <button
+          onClick={() => toggleSaveRide(post.id)}
+          className={`flex items-center space-x-2 px-4 py-1 text-sm rounded-md transition-colors ${
+            savedRides.includes(post.id)
+              ? 'bg-emerald-900 text-emerald-400'
+              : 'bg-zinc-800 text-gray-300 hover:bg-zinc-700'
+          }`}
+        >
+          <Heart
+            className={`h-4 w-4 ${
+              savedRides.includes(post.id) ? 'fill-emerald-400' : 'stroke-2'
+            }`}
+            fill={savedRides.includes(post.id) ? '#34d399' : 'none'}
+          />
+          <span>{savedRides.includes(post.id) ? 'Saved' : 'Interested'}</span>
+        </button>
+        <button
+          onClick={() => handleConnectClick(post)}
+          className="bg-blue-700 text-white hover:bg-blue-600 flex items-center space-x-2 px-4 py-1 text-sm rounded-md"
+        >
+          <MessageCircle className="h-4 w-4" />
+          <span>Connect</span>
+        </button>
+      </>
+    )}
+  </div>
+</div>
                 <hr className="border-zinc-800 my-6" />
               </div>
             ))}

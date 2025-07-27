@@ -72,6 +72,8 @@ export default function SignupPage() {
   const router = useRouter()
   const [userEnteredCode, setUserEnteredCode] = useState("");
   const [codeError, setCodeError] = useState("");
+  const [universityQuery, setUniversityQuery] = useState("")
+const [universitySuggestions, setUniversitySuggestions] = useState<{ id: string, institution: string }[]>([])
   // Add state for email verification step
   const [emailVerification, setEmailVerification] = useState({
     sent: false,
@@ -92,6 +94,25 @@ export default function SignupPage() {
       if (user) router.replace('/profile')
     }
   }, [router])
+
+  useEffect(() => {
+  const delayDebounce = setTimeout(async () => {
+    if (universityQuery.length < 2) {
+      setUniversitySuggestions([])
+      return
+    }
+
+    try {
+      const res = await fetch(`/api/universities/search?query=${encodeURIComponent(universityQuery)}`)
+      const data = await res.json()
+      setUniversitySuggestions(data)
+    } catch (err) {
+      console.error('Failed to fetch suggestions', err)
+    }
+  }, 300) // debounce
+
+  return () => clearTimeout(delayDebounce)
+}, [universityQuery])
 
 
   useEffect(() => {
@@ -523,24 +544,39 @@ export default function SignupPage() {
                       This helps us connect you with your school on the community wall and filter rides more accurately.
                     </div>
                     {form.isStudent === 'yes' && (
-                      <div className="mt-4">
-                        <label className="block mb-2 text-sm font-medium text-white">Choose your university</label>
-                        <select
-                          className="input-field w-full"
-                          value={form.university}
-                          onChange={handleUniversityChange}
-                          required
-                        >
-                          <option value="">Select university</option>
-                          {universityOptions.map((uni) => (
-                            <option key={uni} value={uni}>{uni}</option>
-                          ))}
-                        </select>
-                        <div className="text-xs text-gray-400 mt-2 pl-1">
-                          If your university isn’t listed, you can add it later in your profile.
-                        </div>
-                      </div>
-                    )}
+  <div className="mt-4 w-full">
+    <label className="block mb-2 text-sm font-medium text-white">Your University</label>
+    <input
+      type="text"
+      className="input-field w-full"
+      placeholder="Start typing to search..."
+      value={form.university}
+      onChange={(e) => {
+        setForm({ ...form, university: e.target.value })
+        setUniversityQuery(e.target.value)
+      }}
+    />
+    {universitySuggestions.length > 0 && (
+      <ul className="bg-zinc-800 border border-zinc-700 mt-1 rounded-lg text-sm max-h-40 overflow-y-auto">
+        {universitySuggestions.map((u) => (
+          <li
+            key={u.id}
+            className="px-4 py-2 hover:bg-zinc-700 cursor-pointer"
+            onClick={() => {
+              setForm({ ...form, university: u.institution })
+              setUniversitySuggestions([])
+            }}
+          >
+            {u.institution}
+          </li>
+        ))}
+      </ul>
+    )}
+    <div className="text-xs text-gray-400 mt-2 pl-1">
+      If your university isn’t listed, you can add it later in your profile.
+    </div>
+  </div>
+)}
                   </div>
                 )}
                 {steps[getStepIndex(step)]?.inputType === "password" && (

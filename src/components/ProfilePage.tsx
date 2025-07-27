@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSearchParams } from 'next/navigation';
 import { Car, Users, MapPin, Calendar, Clock, User } from 'lucide-react';
+import RidePostForm from './RidePostForm';
 
 type UserProfile = {
   id?: string;
@@ -32,7 +33,7 @@ export default function ProfilePage() {
   const [savedPosts, setSavedPosts] = useState<any[]>([]);
   const [otherUserPosts, setOtherUserPosts] = useState<any[]>([]);
   const router = useRouter()
-
+const [editDialog, setEditDialog] = useState({ open: false, post: null })
   const searchParams = useSearchParams();
   const userId = searchParams.get('userId');
 
@@ -93,17 +94,21 @@ const fetchMyPosts = async () => {
 }
 
 const handleDeletePost = async (postId: string) => {
-  const confirmDelete = window.confirm('Are you sure you want to delete this post?')
-  if (!confirmDelete) return
+  const confirmed = window.confirm('Delete this ride?')
+  if (!confirmed) return
 
   try {
-    await fetch('/api/ride-posts/delete', {
+    const res = await fetch(`/api/ride-posts/${postId}`, { method: 'DELETE' })
+    if (res.ok) {
+      setUserPosts(prev => prev.filter(post => post.id !== postId))
+    }
+
+    // 🔔 Notify users via backend (see below)
+    await fetch('/api/ride-posts/notify-deletion', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ postId }),
     })
-
-    setMyPosts(prev => prev.filter((post: any) => post.id !== postId))
   } catch (err) {
     console.error('Delete failed:', err)
   }
@@ -171,6 +176,14 @@ const email = (typeof window !== 'undefined' && localStorage.getItem('currentUse
   ? JSON.parse(localStorage.getItem('currentUser') || '{}')?.email 
   : ''
 
+const firstName = (typeof window !== 'undefined' && localStorage.getItem('currentUser')) 
+  ? JSON.parse(localStorage.getItem('currentUser') || '{}')?.firstName  
+  : ''
+
+const lastName = (typeof window !== 'undefined' && localStorage.getItem('currentUser')) 
+  ? JSON.parse(localStorage.getItem('currentUser') || '{}')?.lastName  
+  : ''
+
 const joinDate = user?.joinDate
   ? new Date(user.joinDate).toLocaleString('default', { month: 'long', year: 'numeric' })
   : ''
@@ -192,13 +205,9 @@ const username = user?.name ? user.name.toLowerCase().replace(/\s+/g, "") : "use
       <div className="w-full max-w-2xl px-6 md:px-10 pt-20 pb-6 flex flex-col md:flex-row md:justify-between md:items-end">
         <div className="flex-1">
           <h1 className="text-3xl font-extrabold text-white">
-            {user?.firstName || user?.name || 'User'}
+            {firstName} {lastName}
             {user?.lastName ? ` ${user.lastName}` : ''}
           </h1>
-
-          <div className="text-gray-400 text-lg font-medium mb-1">
-            @{user?.name ? user.name.toLowerCase().replace(/\s+/g, "") : "user"}
-          </div>
 
           {email && (
             <div className="text-gray-400 text-sm font-medium mb-2">
@@ -286,79 +295,95 @@ const username = user?.name ? user.name.toLowerCase().replace(/\s+/g, "") : "use
           <h2 className="text-2xl font-bold text-white mb-6">My Rides</h2>
           <div className="flex flex-col gap-4">
             {userPosts.length > 0 ? (
-              userPosts.map((post) => (
-                <div
-                  key={post.id}
-                  className="w-full bg-[#16181c] rounded-2xl border border-[#222327] shadow p-5 flex flex-col gap-2"
-                >
-                  {/* User and Post Type */}
-                  <div className="flex items-center gap-3 mb-1">
-                    <div className={`p-2 rounded-full ${post.role === 'driver' ? 'bg-emerald-100' : 'bg-blue-100'}`}>
-                      {getRoleIcon(post)}
-                    </div>
-                    <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold bg-[#222327] ${post.role === 'driver' ? 'text-emerald-400' : 'text-blue-400'}`}>
-                      {getRoleLabel(post)}
-                    </span>
-                  </div>
+  userPosts.map((post) => (
+    <div
+      key={post.id}
+      className="w-full bg-[#16181c] rounded-2xl border border-[#222327] shadow p-5 flex flex-col gap-2"
+    >
+      {/* User and Post Type */}
+      <div className="flex items-center gap-3 mb-1">
+        <div className={`p-2 rounded-full ${post.role === 'driver' ? 'bg-emerald-100' : 'bg-blue-100'}`}>
+          {getRoleIcon(post)}
+        </div>
+        <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold bg-[#222327] ${post.role === 'driver' ? 'text-emerald-400' : 'text-blue-400'}`}>
+          {getRoleLabel(post)}
+        </span>
+      </div>
 
-                  {/* Metadata Row */}
-                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-gray-400 mb-1">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
-                      <span>{new Date(post.date).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span>{getTimeOfDayLabel(post.timeOfDay)}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      <span>{post.from} → {post.to}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <User className="h-4 w-4" />
-                      <span>{getSeatsText(post)}</span>
-                    </div>
-                  </div>
+      {/* Metadata Row */}
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-gray-400 mb-1">
+        <div className="flex items-center gap-1">
+          <Calendar className="h-4 w-4" />
+          <span>{new Date(post.date).toLocaleDateString()}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Clock className="h-4 w-4" />
+          <span>{getTimeOfDayLabel(post.timeOfDay)}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <MapPin className="h-4 w-4" />
+          <span>{post.from} → {post.to}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <User className="h-4 w-4" />
+          <span>{getSeatsText(post)}</span>
+        </div>
+      </div>
 
-                  {/* Notes */}
-                  {post.notes && (
-                    <p className="text-sm text-gray-300 mb-1 whitespace-pre-line">{post.notes}</p>
-                  )}
+      {/* Notes */}
+      {post.notes && (
+        <p className="text-sm text-gray-300 mb-1 whitespace-pre-line">{post.notes}</p>
+      )}
 
-                  {/* Hashtags */}
-                  {post.hashtags && post.hashtags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-1">
-                      {post.hashtags.map((hashtag: string) => (
-                        <span
-                          key={hashtag}
-                          className="px-3 py-1 bg-[#222327] text-twitterBlue text-xs font-semibold rounded-full"
-                        >
-                          #{hashtag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+      {/* Hashtags */}
+      {post.hashtags && post.hashtags.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-1">
+          {post.hashtags.map((hashtag: string) => (
+            <span
+              key={hashtag}
+              className="px-3 py-1 bg-[#222327] text-twitterBlue text-xs font-semibold rounded-full"
+            >
+              #{hashtag}
+            </span>
+          ))}
+        </div>
+      )}
 
-                  {/* Contact Info */}
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="text-xs text-gray-500 truncate">
-                      Contact: {post.contactInfo}
-                    </span>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-400">You haven`t posted any rides yet.</p>
-                <button
-                  onClick={() => router.push('/home')}
-                  className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition"
-                >
-                  Post Your First Ride
-                </button>
-              </div>
-            )}
+      {/* Contact Info */}
+      <div className="flex items-center justify-between mt-2">
+        <span className="text-xs text-gray-500 truncate">
+          Contact: {post.contactInfo}
+        </span>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex gap-3 justify-end mt-4">
+        <button
+          onClick={() => setEditDialog({ open: true, post })}
+          className="px-4 py-1 text-sm rounded-full bg-blue-600 text-white hover:bg-blue-700 transition"
+        >
+          Edit
+        </button>
+        <button
+          onClick={() => handleDeletePost(post.id)}
+          className="px-4 py-1 text-sm rounded-full bg-red-600 text-white hover:bg-red-700 transition"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  ))
+) : (
+  <div className="text-center py-8">
+    <p className="text-gray-400">You haven`t posted any rides yet.</p>
+    <button
+      onClick={() => router.push('/home')}
+      className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition"
+    >
+      Post Your First Ride
+    </button>
+  </div>
+)}
           </div>
         </div>
       )}
@@ -514,6 +539,29 @@ const username = user?.name ? user.name.toLowerCase().replace(/\s+/g, "") : "use
           </div>
         </div>
       )}
+      {editDialog.open && (
+  <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center">
+    <div className="bg-[#16181c] rounded-2xl shadow-lg p-6 w-full max-w-md">
+      <RidePostForm
+        initialData={editDialog.post}
+        onComplete={(updatedPost) => {
+          setUserPosts((prev) =>
+            prev.map((p) => (p.id === updatedPost.id ? updatedPost : p))
+          );
+          setEditDialog({ open: false, post: null });
+
+          // Optionally notify backend/email on edit here
+          fetch('/api/ride-posts/notify-edit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ postId: updatedPost.id }),
+          });
+        }}
+        onBack={() => setEditDialog({ open: false, post: null })}
+      />
+    </div>
+  </div>
+)}
     </div>
   )
 }
