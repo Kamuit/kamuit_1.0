@@ -229,16 +229,27 @@ export default function RideFeed({ posts = [], setPosts, handleConnect, showFilt
           <div className="flex flex-col gap-8 items-start w-full">
             {sortedPostsWithExpiry.map((post) => (
               <div key={post.id} className={`w-full ${isOldPost(post.date) ? 'opacity-50 grayscale pointer-events-none select-none' : ''}`}>
-                {post?.user?.firstName && (
-                  <div className="mb-1">
-                    <button
-                      onClick={() => router.push(`/profile/${post.user.id}`)}
-                      className="text-white font-semibold text-sm hover:underline"
-                    >
-                      {post.user.firstName} {post.user.lastName}
-                    </button>
-                  </div>
-                )}
+<div className="mb-2 flex items-center justify-between">
+  <div>
+    <button
+  onClick={() => router.push(`/profile/${post.user.id}`)}
+  className="text-white font-semibold text-base hover:underline"
+>
+  {post.user.firstName} {post.user.lastName}
+</button>
+  </div>
+  <div>
+    {post.type === 'OFFER' ? (
+      <span className="flex items-center gap-2 px-4 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-emerald-400 text-xs font-semibold">
+        🛻 Offer
+      </span>
+    ) : (
+      <span className="flex items-center gap-2 px-4 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-yellow-400 text-xs font-semibold">
+        🙋‍♂️ Request
+      </span>
+    )}
+  </div>
+</div>
                 {isOldPost(post.date) && (
                   <span className="inline-block bg-red-900 text-red-300 text-xs font-semibold px-3 py-1 rounded-full mb-2">
                     Expired Ride
