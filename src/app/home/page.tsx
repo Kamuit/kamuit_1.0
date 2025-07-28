@@ -82,7 +82,7 @@ export default function HomePage() {
       if (!res.ok) throw new Error('Failed to create ride post')
       setShowModal(false)
 
-      const refreshed = await fetch('/api/ride-posts/')
+      const refreshed = await fetch('/api/ride-posts')
       const refreshedData = await refreshed.json()
       setPosts(refreshedData.posts)
     } catch (err) {
