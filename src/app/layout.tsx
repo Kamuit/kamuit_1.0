@@ -20,19 +20,23 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   const currentUser = { name: 'Jane Doe' }
+
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" type="image/svg+xml" href="/assets/b2.svg" />
+      </head>
       <body className={inter.className + " bg-black text-white"}>
         <TopBar />
-        <Sidebar currentUser={currentUser}  />
+        <Sidebar currentUser={currentUser} />
         <BottomNav />
         <div className="min-h-screen flex justify-center bg-black">
-        <main className="min-h-screen w-full max-w-6xl px-4 sm:px-6 md:px-8 transition-all ml-0 lg:ml-60 lg:mr-[20rem]">
-          {children}
-        </main>
+          <main className="min-h-screen w-full max-w-6xl px-4 sm:px-6 md:px-8 transition-all ml-0 lg:ml-60 lg:mr-[20rem]">
+            {children}
+          </main>
           <RightSidebar />
         </div>
       </body>
     </html>
   )
-} 
+}

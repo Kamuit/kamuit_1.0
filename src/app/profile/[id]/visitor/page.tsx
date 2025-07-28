@@ -52,6 +52,7 @@ export default function VisitorProfilePage() {
           {profile.firstName} {profile.lastName}
         </h1>
         {profile.bio && <div className="text-white mt-2">{profile.bio}</div>}
+        {console.log(profile)}
         <div className="flex flex-wrap gap-4 text-gray-400 text-sm mt-2">
           {profile.location && <span>📍 {profile.location}</span>}
           {profile.website && (

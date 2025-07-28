@@ -60,7 +60,12 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-black text-white">
       <div className="flex flex-col items-center w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold text-white mb-1">Kamuit 1.0</h1>
+          <img
+            src="/assets/b3.svg"
+            alt="kamuit logo"
+            className="w-36 h-22"
+            onError={(e) => { e.currentTarget.style.display = 'none' }}
+          />
           <div className="text-emerald-400 text-base font-medium">Ride Better Together</div>
         </div>
 

@@ -18,7 +18,12 @@ export default function TopBar() {
   return (
     <div className="lg:hidden fixed top-0 left-0 right-0 h-14 bg-black border-b border-zinc-800 px-4 flex items-center justify-between z-50">
       {/* Logo */}
-      <Link href="/home" className="text-emerald-400 text-xl font-bold">Kamuit</Link>
+      <img
+        src="/assets/b2.svg"
+        alt="kamuit logo"
+        className="w-8 h-12"
+        onError={(e) => { e.currentTarget.style.display = 'none' }}
+      />
 
       {/* Profile icon - green only, no background */}
       <Link href="/profile">

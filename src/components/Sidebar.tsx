@@ -3,6 +3,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import { Home, PlusCircle, MessageCircle, User, Heart, Info, LifeBuoy, ClipboardList } from 'lucide-react'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
+import KLogo from '../assets/b2.svg'
+import kamuitLogo from '../assets/b3.svg'
 
 const links = [
   { href: '/home', icon: Home, label: 'Home', aria: 'Home' },
@@ -35,7 +37,12 @@ export default function Sidebar() {
 <aside className="hidden lg:flex fixed left-0 top-0 h-screen bg-gray-950 flex-col items-center px-2 py-6 w-20 md:w-72 ml-2 md:ml-8 transition-all z-40 border-r border-[#222327]">
       {/* Logo placeholder */}
       <div className="mb-8 flex items-center justify-center w-full">
-        <div className="rounded-full bg-emerald-500 w-12 h-12 flex items-center justify-center text-2xl font-extrabold text-white">K</div>
+      <img
+        src="/assets/b2.svg"
+        alt="kamuit logo"
+        className="w-12 h-12"
+        onError={(e) => { e.currentTarget.style.display = 'none' }}
+      />
       </div>
       <nav className="flex flex-col gap-2 flex-1 w-full items-center justify-center">
         {links.map(({ href, icon: Icon, label, aria }) => (

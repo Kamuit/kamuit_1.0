@@ -9,6 +9,7 @@ type UserProfile = {
   id?: string;
   name?: string;
   firstName?: string;
+  gender?: 'male' | 'female' | 'neutral';
   lastName?: string;
   bio?: string;
   location?: string;
@@ -34,26 +35,41 @@ const [editDialog, setEditDialog] = useState({ open: false, post: null })
   const userId = searchParams.get('userId');
   const [userPostsLoading, setUserPostsLoading] = useState(true);
 
-  useEffect(() => {
-    setTimeout(() => setLoading(false), 300);
-    if (typeof window !== 'undefined') {
-      const currentUser = localStorage.getItem('currentUser');
-      if (!currentUser) {
-        router.replace('/login');
-        return;
-      }
-      const parsedCurrentUser = JSON.parse(currentUser);
-      setLoggedInUser(parsedCurrentUser);
+ useEffect(() => {
+  if (typeof window === 'undefined') return;
+
+  setLoading(true); // Start loading before fetch
+
+  const currentUser = localStorage.getItem('currentUser');
+  if (!currentUser) {
+    router.replace('/login');
+    return;
+  }
+
+  const parsedCurrentUser = JSON.parse(currentUser);
+  setLoggedInUser(parsedCurrentUser);
+
+  const fetchUser = async () => {
+    try {
+      const res = await fetch(`/api/users/${userId || parsedCurrentUser.id}`);
+      const data = await res.json();
+      setProfileUser(data);
+
+      // Save to localStorage only if it's current user
       if (!userId || userId === parsedCurrentUser.id) {
-        setProfileUser(parsedCurrentUser);
-      } else {
-        fetch(`/api/users/${userId}`)
-          .then(res => res.json())
-          .then(data => setProfileUser(data))
-          .catch(() => setProfileUser(null));
+        setLoggedInUser(data);
+        localStorage.setItem('currentUser', JSON.stringify(data));
       }
+    } catch (err) {
+      console.error('Failed to fetch profile:', err);
+      setProfileUser(parsedCurrentUser); // fallback
+    } finally {
+      setLoading(false); // ✅ Done loading
     }
-  }, [router, userId]);
+  };
+
+  fetchUser();
+}, [router, userId]);
 
 useEffect(() => {
   if (profileUser) {
@@ -111,14 +127,8 @@ const handleSave = async () => {
     website: websiteValue,
   };
 
-  setProfileUser(updatedUser);
-  setLoggedInUser(updatedUser);
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-  }
-
   try {
-    await fetch('/api/profile/update', {
+    const res = await fetch('/api/profile/update', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -128,6 +138,18 @@ const handleSave = async () => {
         website: updatedUser.website,
       }),
     });
+
+    if (!res.ok) throw new Error('Failed to update profile');
+
+    // ✅ Re-fetch updated profile from backend
+    const refreshed = await fetch(`/api/users/${updatedUser.id}`);
+    const freshData = await refreshed.json();
+
+    setProfileUser(freshData);
+    setLoggedInUser(freshData);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('currentUser', JSON.stringify(freshData));
+    }
   } catch (err) {
     console.error('Failed to save profile to server:', err);
   }
@@ -163,12 +185,18 @@ const getSeatsText = (post: any) => {
     : `${seatCount} seat${seatCount !== 1 ? 's' : ''} needed`
 }
 
-  if (loading) return <div className="h-screen flex items-center justify-center bg-black text-white">Loading...</div>
+  if (loading) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-black text-white">
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-white"></div>
+    </div>
+  );
+}
   // Remove placeholder data for demo
   const bannerUrl = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80"
-const avatarUrl = "https://api.dicebear.com/7.x/avataaars/svg?seed=" + encodeURIComponent(profileUser?.name || profileUser?.firstName || "User")
 
-const joinDate = profileUser?.joinDate  ? new Date(profileUser.joinDate).toLocaleString('default', { month: 'long', year: 'numeric' })
+const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profileUser?.name || profileUser?.firstName || "User")}`;
+const joinDate = profileUser?.createdAt  ? new Date(profileUser.createdAt).toLocaleString('default', { month: 'long', year: 'numeric' })
   : ''
 
 // Optional: use this if you need the username string elsewhere
@@ -177,20 +205,28 @@ const joinDate = profileUser?.joinDate  ? new Date(profileUser.joinDate).toLocal
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center pt-24 pb-28 px-4">
       {/* Banner */}
-      <div className="w-full max-w-2xl h-48 md:h-64 bg-zinc-800 relative rounded-b-2xl overflow-hidden">
-        <img src={bannerUrl} alt="Banner" className="object-cover w-full h-full" />
-        {/* Avatar */}
-        <div className="absolute left-6 md:left-10 -bottom-16 md:-bottom-20 z-10">
-          <img src={avatarUrl} alt="Avatar" className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-black shadow-xl bg-zinc-900" />
-        </div>
-      </div>
+      {/* Banner Container */}
+<div className="w-full max-w-2xl h-48 md:h-64 bg-zinc-800 relative rounded-b-2xl overflow-visible">
+  <img src={bannerUrl} alt="Banner" className="object-cover w-full h-full rounded-b-2xl" />
+</div>
+
+{/* Avatar (outside the banner, not inside) */}
+<div className="relative w-full max-w-2xl">
+  <div className="absolute left-6 md:left-10 -top-16 md:-top-20 z-20">
+    <img
+      src={avatarUrl}
+      alt="Avatar"
+      className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-black shadow-xl bg-zinc-900"
+    />
+  </div>
+</div>
       {/* Profile Info */}
       <div className="w-full max-w-2xl px-6 md:px-10 pt-20 pb-6 flex flex-col md:flex-row md:justify-between md:items-end">
         <div className="flex-1">
           <h1 className="text-3xl font-extrabold text-white">
             {profileUser?.firstName || profileUser?.name || 'User'} {profileUser?.lastName || ''}
           </h1>
-
+          {!editMode && profileUser.bio && <div className="text-white mt-2">{profileUser.bio}</div>}
           {profileUser?.email && (
             <div className="text-gray-400 text-sm font-medium mb-2">
               📧 {profileUser?.email}
@@ -220,7 +256,6 @@ const joinDate = profileUser?.joinDate  ? new Date(profileUser.joinDate).toLocal
             </>
           ) : (
             <>
-              <div className="text-base text-white mb-2">{bioValue}</div>
               <div className="flex flex-wrap gap-4 text-gray-400 text-sm mb-2">
                 {locationValue && <span>📍 {locationValue}</span>}
                 {websiteValue && <span>🔗 
