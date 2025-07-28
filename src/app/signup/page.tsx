@@ -360,7 +360,7 @@ const [universitySuggestions, setUniversitySuggestions] = useState<{ id: string,
     {!emailVerification.showSuccess ? (
       <>
         <div className="text-center mb-4">
-          <div className="text-lg font-semibold mb-2">We’ve sent an 8-digit code to</div>
+          <div className="text-lg font-semibold mb-2">We`ve sent an 6-digit code to</div>
           <div className="text-emerald-400 font-mono break-all">{form.email}</div>
         </div>
 
