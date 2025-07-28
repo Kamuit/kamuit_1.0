@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '../../context/UserContext'
+import { Eye, EyeOff } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -10,6 +11,8 @@ export default function LoginPage() {
   const [showReset, setShowReset] = useState(false)
   const [resetEmail, setResetEmail] = useState('')
   const [resetSent, setResetSent] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  
 
   const router = useRouter()
   const { setUser } = useUser()
@@ -70,16 +73,29 @@ export default function LoginPage() {
             onChange={e => setEmail(e.target.value)}
             className="input-field mb-4 w-full"
           />
+          <div className="relative mb-4 w-full">
           <input
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             placeholder="Password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className="input-field mb-4 w-full"
+            className="input-field pr-10 w-full"
           />
+          <button
+            type="button"
+            className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400 hover:text-white"
+            onClick={() => setShowPassword(prev => !prev)}
+            tabIndex={-1}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
           {error && <p className="text-red-500 mb-4">{error}</p>}
-          <div className="flex justify-end text-sm text-gray-400 hover:text-white cursor-pointer mb-6" onClick={() => setShowReset(true)}>
-            Forgot your password? We won’t judge 🤭
+          <div
+            className="flex justify-end text-sm cursor-pointer mb-6"
+            onClick={() => setShowReset(true)}
+          >
+            <span className=' text-emerald-400 hover:text-emerald-300' >Forgot your password? </span> <span> we won’t judge 🤭</span>
           </div>
           <div className="flex flex-col gap-0">
             <button type="submit" className="w-full rounded-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 text-lg font-semibold transition">Log In</button>

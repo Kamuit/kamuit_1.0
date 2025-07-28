@@ -367,9 +367,9 @@ const [universitySuggestions, setUniversitySuggestions] = useState<{ id: string,
         <input
           type="text"
           inputMode="numeric"
-          maxLength={8}
+          maxLength={6}
           className="input-field text-center tracking-widest text-xl font-mono mb-2 w-full"
-          placeholder="Enter 8-digit code"
+          placeholder="Enter 6-digit code"
           value={userEnteredCode}
           onChange={e => setUserEnteredCode(e.target.value)}
         />
@@ -520,7 +520,7 @@ const [universitySuggestions, setUniversitySuggestions] = useState<{ id: string,
                 {/* Combined student/university step */}
                 {steps[getStepIndex(step)]?.inputType === "studentWithUniversity" && (
                   <div className="mb-4 w-full">
-                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center mt-0 mb-2">
+                    <div className="flex flex-wrap gap-3 items-center justify-center mt-0 mb-2">
                       <button
                         type="button"
                         className={`transition px-7 py-2 rounded-full border text-[15px] focus:outline-none focus:ring-2 focus:ring-emerald-400

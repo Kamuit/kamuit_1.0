@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Email is required' }, { status: 400 });
   }
 
-  const code = Math.floor(10000000 + Math.random() * 90000000).toString(); // 8-digit
+  const code = Math.floor(10000000 + Math.random() * 900000).toString(); // 8-digit
 
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 min
 

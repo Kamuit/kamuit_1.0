@@ -22,20 +22,17 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [profileUser, setProfileUser] = useState<UserProfile | null>(null);
   const [loggedInUser, setLoggedInUser] = useState<UserProfile | null>(null);
-  const [user, setUser] = useState<UserProfile | null>(null)
-  const [myPosts, setMyPosts] = useState([])
-  const [showMyPosts, setShowMyPosts] = useState(false)
   const [editMode, setEditMode] = useState(false)
   const [bioValue, setBioValue] = useState("")
   const [locationValue, setLocationValue] = useState("")
   const [websiteValue, setWebsiteValue] = useState("")
   const [userPosts, setUserPosts] = useState<any[]>([])
-  const [savedPosts, setSavedPosts] = useState<any[]>([]);
   const [otherUserPosts, setOtherUserPosts] = useState<any[]>([]);
   const router = useRouter()
 const [editDialog, setEditDialog] = useState({ open: false, post: null })
   const searchParams = useSearchParams();
   const userId = searchParams.get('userId');
+  const [userPostsLoading, setUserPostsLoading] = useState(true);
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 300);
@@ -58,13 +55,19 @@ const [editDialog, setEditDialog] = useState({ open: false, post: null })
     }
   }, [router, userId]);
 
-  useEffect(() => {
-    if (profileUser) {
-      setBioValue(profileUser.bio || "")
-      setLocationValue(profileUser.location || "")
-      setWebsiteValue(profileUser.website || "")
-    }
-  }, [profileUser])
+useEffect(() => {
+  if (profileUser) {
+    setUserPostsLoading(true);
+    fetch('/api/ride-posts')
+      .then(res => res.json())
+      .then(data => {
+        const theirPosts = data.posts.filter((post: any) => post.user.id === profileUser.id);
+        setUserPosts(theirPosts);
+      })
+      .catch(err => console.error('Failed to fetch user posts:', err))
+      .finally(() => setUserPostsLoading(false));
+  }
+}, [profileUser, loggedInUser]);
 
   useEffect(() => {
     // Fetch rides for the profile user
@@ -74,24 +77,10 @@ const [editDialog, setEditDialog] = useState({ open: false, post: null })
         .then(data => {
           const theirPosts = data.posts.filter((post: any) => post.user.id === profileUser.id);
           setUserPosts(theirPosts);
-          // Only fetch saved rides if viewing own profile
-          if (loggedInUser && profileUser.id === loggedInUser.id) {
-            const savedIds = loggedInUser.savedRides || [];
-            const saved = data.posts.filter((post: any) => savedIds.includes(post.id));
-            setSavedPosts(saved);
-          } else {
-            setSavedPosts([]);
-          }
         })
         .catch(err => console.error('Failed to fetch user posts:', err));
     }
   }, [profileUser, loggedInUser]);
-const fetchMyPosts = async () => {
-  if (!user?.id) return
-  const res = await fetch(`/api/ride-posts/user/${user.id}`)
-  const data = await res.json()
-  setMyPosts(data)
-}
 
 const handleDeletePost = async (postId: string) => {
   const confirmed = window.confirm('Delete this ride?')
@@ -115,10 +104,17 @@ const handleDeletePost = async (postId: string) => {
 }
 
 const handleSave = async () => {
-  const updatedUser = { ...user, bio: bioValue, location: locationValue, website: websiteValue }
-  setUser(updatedUser)
+  const updatedUser = {
+    ...profileUser,
+    bio: bioValue,
+    location: locationValue,
+    website: websiteValue,
+  };
+
+  setProfileUser(updatedUser);
+  setLoggedInUser(updatedUser);
   if (typeof window !== 'undefined') {
-    localStorage.setItem('currentUser', JSON.stringify(updatedUser))
+    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
   }
 
   try {
@@ -126,18 +122,18 @@ const handleSave = async () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        email,
-        bio: bioValue,
-        location: locationValue,
-        website: websiteValue,
+        email: updatedUser.email,
+        bio: updatedUser.bio,
+        location: updatedUser.location,
+        website: updatedUser.website,
       }),
-    })
+    });
   } catch (err) {
-    console.error('Failed to save profile to server:', err)
+    console.error('Failed to save profile to server:', err);
   }
 
-  setEditMode(false)
-}
+  setEditMode(false);
+};
 
 // (Optional) Utility functions from the other branch
 const getTimeOfDayLabel = (timeOfDay: string) => {
@@ -170,26 +166,13 @@ const getSeatsText = (post: any) => {
   if (loading) return <div className="h-screen flex items-center justify-center bg-black text-white">Loading...</div>
   // Remove placeholder data for demo
   const bannerUrl = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80"
-const avatarUrl = "https://api.dicebear.com/7.x/avataaars/svg?seed=" + encodeURIComponent(user?.name || user?.firstName || "User")
+const avatarUrl = "https://api.dicebear.com/7.x/avataaars/svg?seed=" + encodeURIComponent(profileUser?.name || profileUser?.firstName || "User")
 
-const email = (typeof window !== 'undefined' && localStorage.getItem('currentUser')) 
-  ? JSON.parse(localStorage.getItem('currentUser') || '{}')?.email 
-  : ''
-
-const firstName = (typeof window !== 'undefined' && localStorage.getItem('currentUser')) 
-  ? JSON.parse(localStorage.getItem('currentUser') || '{}')?.firstName  
-  : ''
-
-const lastName = (typeof window !== 'undefined' && localStorage.getItem('currentUser')) 
-  ? JSON.parse(localStorage.getItem('currentUser') || '{}')?.lastName  
-  : ''
-
-const joinDate = user?.joinDate
-  ? new Date(user.joinDate).toLocaleString('default', { month: 'long', year: 'numeric' })
+const joinDate = profileUser?.joinDate  ? new Date(profileUser.joinDate).toLocaleString('default', { month: 'long', year: 'numeric' })
   : ''
 
 // Optional: use this if you need the username string elsewhere
-const username = user?.name ? user.name.toLowerCase().replace(/\s+/g, "") : "user"
+// const username = user?.name ? user.name.toLowerCase().replace(/\s+/g, "") : "user"
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center pt-24 pb-28 px-4">
@@ -205,13 +188,12 @@ const username = user?.name ? user.name.toLowerCase().replace(/\s+/g, "") : "use
       <div className="w-full max-w-2xl px-6 md:px-10 pt-20 pb-6 flex flex-col md:flex-row md:justify-between md:items-end">
         <div className="flex-1">
           <h1 className="text-3xl font-extrabold text-white">
-            {firstName} {lastName}
-            {user?.lastName ? ` ${user.lastName}` : ''}
+            {profileUser?.firstName || profileUser?.name || 'User'} {profileUser?.lastName || ''}
           </h1>
 
-          {email && (
+          {profileUser?.email && (
             <div className="text-gray-400 text-sm font-medium mb-2">
-              📧 {email}
+              📧 {profileUser?.email}
             </div>
           )}
           {editMode ? (
@@ -255,7 +237,7 @@ const username = user?.name ? user.name.toLowerCase().replace(/\s+/g, "") : "use
                     {websiteValue}
                   </a>
                 </span>}
-                <span>📅 Joined {joinDate}</span>
+                <span>🗓️ Joined {joinDate}</span>
               </div>
             </>
           )}
@@ -266,7 +248,16 @@ const username = user?.name ? user.name.toLowerCase().replace(/\s+/g, "") : "use
             {editMode ? (
               <button className="rounded-full border border-emerald-400 text-emerald-400 px-6 py-2 font-semibold hover:bg-emerald-400 hover:text-black transition mr-2" onClick={handleSave}>Save</button>
             ) : (
-              <button className="rounded-full border border-emerald-400 text-emerald-400 px-6 py-2 font-semibold hover:bg-emerald-400 hover:text-black transition" onClick={() => setEditMode(true)}>Edit profile</button>
+              <button className="rounded-full border border-emerald-400 text-emerald-400 px-6 py-2 font-semibold hover:bg-emerald-400 hover:text-black transition" 
+              onClick={() => {
+                setBioValue(profileUser?.bio || '')
+                setLocationValue(profileUser?.location || '')
+                setWebsiteValue(profileUser?.website || '')
+                setEditMode(true)
+              }}
+              >
+                Edit profile
+              </button>
             )}
           </div>
         )}
@@ -294,7 +285,10 @@ const username = user?.name ? user.name.toLowerCase().replace(/\s+/g, "") : "use
         <div className="w-full max-w-2xl px-6 md:px-10 mt-8">
           <h2 className="text-2xl font-bold text-white mb-6">My Rides</h2>
           <div className="flex flex-col gap-4">
-            {userPosts.length > 0 ? (
+
+            {userPostsLoading ? (
+  <div className="text-center py-8 text-gray-400 animate-pulse">Loading your rides...</div>
+) : userPosts.length > 0 ? (
   userPosts.map((post) => (
     <div
       key={post.id}
@@ -373,93 +367,17 @@ const username = user?.name ? user.name.toLowerCase().replace(/\s+/g, "") : "use
       </div>
     </div>
   ))
-) : (
-  <div className="text-center py-8">
-    <p className="text-gray-400">You haven`t posted any rides yet.</p>
-    <button
-      onClick={() => router.push('/home')}
-      className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition"
-    >
-      Post Your First Ride
-    </button>
-  </div>
-)}
-          </div>
-        </div>
-      )}
-      {/* Saved Rides Section */}
-      {loggedInUser && profileUser && profileUser.id === loggedInUser.id && (
-        <div className="w-full max-w-2xl px-6 md:px-10 mt-8">
-          <h2 className="text-2xl font-bold text-white mb-6">Saved Rides</h2>
-          <div className="flex flex-col gap-4">
-            {savedPosts.length > 0 ? (
-              savedPosts.map((post) => (
-                <div
-                  key={post.id}
-                  className="w-full bg-[#16181c] rounded-2xl border border-[#222327] shadow p-5 flex flex-col gap-2"
-                >
-                  {/* User and Post Type */}
-                  <div className="flex items-center gap-3 mb-1">
-                    <div className={`p-2 rounded-full ${post.role === 'driver' ? 'bg-emerald-100' : 'bg-blue-100'}`}>
-                      {getRoleIcon(post)}
-                    </div>
-                    <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold bg-[#222327] ${post.role === 'driver' ? 'text-emerald-400' : 'text-blue-400'}`}>
-                      {getRoleLabel(post)}
-                    </span>
-                  </div>
-
-                  {/* Metadata Row */}
-                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-gray-400 mb-1">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
-                      <span>{new Date(post.date).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span>{getTimeOfDayLabel(post.timeOfDay)}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      <span>{post.from} → {post.to}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <User className="h-4 w-4" />
-                      <span>{getSeatsText(post)}</span>
-                    </div>
-                  </div>
-
-                  {/* Notes */}
-                  {post.notes && (
-                    <p className="text-sm text-gray-300 mb-1 whitespace-pre-line">{post.notes}</p>
-                  )}
-
-                  {/* Hashtags */}
-                  {post.hashtags && post.hashtags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-1">
-                      {post.hashtags.map((hashtag: string) => (
-                        <span
-                          key={hashtag}
-                          className="px-3 py-1 bg-[#222327] text-twitterBlue text-xs font-semibold rounded-full"
-                        >
-                          #{hashtag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Contact Info */}
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="text-xs text-gray-500 truncate">
-                      Contact: {post.contactInfo}
-                    </span>
-                  </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-400">You haven`t posted any rides yet.</p>
+                  <button
+                    onClick={() => router.push('/home')}
+                    className="mt-4 px-6 py-2 bg-emerald-600 text-white rounded-full hover:bg-emerald-700 transition"
+                  >
+                    Post Your First Ride
+                  </button>
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-400">You haven`t saved any rides yet.</p>
-              </div>
-            )}
+              )}
           </div>
         </div>
       )}

@@ -254,12 +254,12 @@ export default function RideFeed({ posts = [], setPosts, handleConnect, showFilt
                 {post.notes && <p className="text-sm text-gray-300 mb-2 whitespace-pre-line">{post.notes}</p>}
                 {post.hashtags?.length > 0 && (
   <div className="flex flex-wrap gap-2 mb-2">
-    {post.hashtags.map((hashtagObj) => (
+    {post.hashtags.map((hashtag) => (
       <span
-        key={hashtagObj.id}
+        key={hashtag}
         className="px-3 py-1 bg-[#111] text-twitterBlue text-xs font-semibold rounded-full"
       >
-        #{hashtagObj.hashtagId?.replace('hashtag-', '')}
+        #{hashtag?.replace('hashtag-', '')}
       </span>
     ))}
   </div>
@@ -277,44 +277,44 @@ export default function RideFeed({ posts = [], setPosts, handleConnect, showFilt
   <div className="flex gap-2 w-full sm:w-auto justify-end">
     {post.user.id === getCurrentUser()?.id ? (
       <>
-        <button
-          onClick={() => setDeleteDialog({ open: true, postId: post.id })}
-          className="px-4 py-1 text-sm rounded-lg bg-red-700 text-white hover:bg-red-800 transition-colors"
-        >
-          Delete
-        </button>
-        <button
-          onClick={() => setEditDialog({ open: true, post })}
-          className="px-4 py-1 text-sm rounded-lg bg-blue-700 text-white hover:bg-blue-800 transition-colors"
-        >
-          Edit
-        </button>
+<button
+  onClick={() => setDeleteDialog({ open: true, postId: post.id })}
+  className="min-w-[110px] px-4 py-1 text-sm rounded-md bg-red-700 text-white hover:bg-red-800 flex items-center justify-center"
+>
+  Delete
+</button>
+<button
+  onClick={() => setEditDialog({ open: true, post })}
+  className="min-w-[110px] px-4 py-1 text-sm rounded-md bg-blue-700 text-white hover:bg-blue-800 flex items-center justify-center"
+>
+  Edit
+</button>
       </>
     ) : (
       <>
         <button
-          onClick={() => toggleSaveRide(post.id)}
-          className={`flex items-center space-x-2 px-4 py-1 text-sm rounded-md transition-colors ${
-            savedRides.includes(post.id)
-              ? 'bg-emerald-900 text-emerald-400'
-              : 'bg-zinc-800 text-gray-300 hover:bg-zinc-700'
-          }`}
-        >
-          <Heart
-            className={`h-4 w-4 ${
-              savedRides.includes(post.id) ? 'fill-emerald-400' : 'stroke-2'
-            }`}
-            fill={savedRides.includes(post.id) ? '#34d399' : 'none'}
-          />
-          <span>{savedRides.includes(post.id) ? 'Saved' : 'Interested'}</span>
-        </button>
+  onClick={() => toggleSaveRide(post.id)}
+  className={`min-w-[110px] flex items-center justify-center space-x-2 px-4 py-1 text-sm rounded-md transition-colors ${
+    savedRides.includes(post.id)
+      ? 'bg-emerald-900 text-emerald-400'
+      : 'bg-zinc-800 text-gray-300 hover:bg-zinc-700'
+  }`}
+>
+  <Heart
+    className={`h-4 w-4 ${
+      savedRides.includes(post.id) ? 'fill-emerald-400' : 'stroke-2'
+    }`}
+    fill={savedRides.includes(post.id) ? '#34d399' : 'none'}
+  />
+  <span>{savedRides.includes(post.id) ? 'Saved' : 'Interested'}</span>
+</button>
         <button
-          onClick={() => handleConnectClick(post)}
-          className="bg-blue-700 text-white hover:bg-blue-600 flex items-center space-x-2 px-4 py-1 text-sm rounded-md"
-        >
-          <MessageCircle className="h-4 w-4" />
-          <span>Connect</span>
-        </button>
+  onClick={() => handleConnectClick(post)}
+  className="min-w-[110px] bg-blue-700 text-white hover:bg-blue-600 flex items-center justify-center space-x-2 px-4 py-1 text-sm rounded-md"
+>
+  <MessageCircle className="h-4 w-4" />
+  <span>Connect</span>
+</button>
       </>
     )}
   </div>
