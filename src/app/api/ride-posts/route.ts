@@ -1,3 +1,6 @@
+// This disables Next.js static caching for this API route
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
@@ -37,12 +40,7 @@ export async function GET(req: NextRequest) {
       role: post.type === 'OFFER' ? 'driver' : 'passenger',
     }));
 
-    const res = NextResponse.json({ posts: formatted }, { status: 200 });
-    res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
-    res.headers.set('Pragma', 'no-cache');
-    res.headers.set('Expires', '0');
-
-    return res;
+    return NextResponse.json({ posts: formatted }, { status: 200 });
   } catch (error) {
     console.error('[GET_RIDE_POSTS_ERROR]', error);
     return NextResponse.json({ error: 'Failed to fetch ride posts' }, { status: 500 });
