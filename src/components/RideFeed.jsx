@@ -39,16 +39,20 @@ export default function RideFeed({ posts = [], setPosts, handleConnect, showFilt
     }
   }, [])
 
-  const filteredPosts = (posts || []).filter(post => {
-  if (filters.from && !post.from.toLowerCase().includes(filters.from.toLowerCase())) return false
-  if (filters.to && !post.to.toLowerCase().includes(filters.to.toLowerCase())) return false
-  if (filters.date && post.date.split('T')[0] !== filters.date) return false
+const filteredPosts = (posts || []).filter(post => {
+  if (filters.from && !post.from?.toLowerCase().includes(filters.from.toLowerCase())) return false
+  if (filters.to && !post.to?.toLowerCase().includes(filters.to.toLowerCase())) return false
+  if (
+    filters.date &&
+    new Date(post.date).toISOString().split('T')[0] !==
+    new Date(filters.date).toISOString().split('T')[0]
+  ) return false
   if (filters.type !== 'ALL' && post.type !== filters.type) return false
   if (filters.timeOfDay && post.timeOfDay !== filters.timeOfDay) return false
   if (filters.hashtags.length > 0) {
-  const postTags = post.hashtags || []
-  if (!filters.hashtags.every(tag => postTags.includes(tag))) return false
-}
+    const postTags = Array.isArray(post.hashtags) ? post.hashtags : []
+    if (!filters.hashtags.every(tag => postTags.includes(tag))) return false
+  }
   return true
 })
 
