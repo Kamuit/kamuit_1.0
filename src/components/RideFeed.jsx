@@ -355,9 +355,9 @@ const filteredPosts = (posts || []).filter(post => {
               <div key={post.id} className={`w-full ${isOldPost(post.date) ? 'opacity-50 grayscale pointer-events-none select-none' : ''}`}>
 <div className="mb-2 flex items-center justify-between">
   <div>
-    <button
+<button
   onClick={() => router.push(`/profile/${post.user.id}`)}
-  className="text-white font-semibold text-base hover:underline"
+  className="text-white font-semibold text-lg sm:text-xl hover:underline"
 >
   {post.user.firstName} {post.user.lastName}
 </button>
