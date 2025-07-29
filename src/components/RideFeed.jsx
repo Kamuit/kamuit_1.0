@@ -6,9 +6,17 @@ import {
 import { useRouter } from 'next/navigation'
 import { createHash } from 'crypto'
 import RidePostForm from './RidePostForm'
+import { CalendarDaysIcon } from '@heroicons/react/24/outline'
 
 export default function RideFeed({ posts = [], setPosts, handleConnect, showFilters, setShowFilters }) {
-  const [filters, setFilters] = useState({ from: '', to: '', date: '', type: 'ALL' })
+  const [filters, setFilters] = useState({
+    from: '',
+    to: '',
+    date: '',
+    type: 'ALL',
+    timeOfDay: '',
+    hashtags: [],
+  })
   const [sortBy, setSortBy] = useState('latest')
   const [savedRides, setSavedRides] = useState([])
   const router = useRouter()
@@ -32,12 +40,17 @@ export default function RideFeed({ posts = [], setPosts, handleConnect, showFilt
   }, [])
 
   const filteredPosts = (posts || []).filter(post => {
-    if (filters.from && !post.from.toLowerCase().includes(filters.from.toLowerCase())) return false
-    if (filters.to && !post.to.toLowerCase().includes(filters.to.toLowerCase())) return false
-    if (filters.date && post.date !== filters.date) return false
-    if (filters.type !== 'ALL' && post.type !== filters.type) return false
-    return true
-  })
+  if (filters.from && !post.from.toLowerCase().includes(filters.from.toLowerCase())) return false
+  if (filters.to && !post.to.toLowerCase().includes(filters.to.toLowerCase())) return false
+  if (filters.date && post.date.split('T')[0] !== filters.date) return false
+  if (filters.type !== 'ALL' && post.type !== filters.type) return false
+  if (filters.timeOfDay && post.timeOfDay !== filters.timeOfDay) return false
+  if (filters.hashtags.length > 0) {
+  const postTags = post.hashtags || []
+  if (!filters.hashtags.every(tag => postTags.includes(tag))) return false
+}
+  return true
+})
 
   const sortedPosts = [...filteredPosts].sort((a, b) => {
     switch (sortBy) {
@@ -226,6 +239,113 @@ export default function RideFeed({ posts = [], setPosts, handleConnect, showFilt
             </button>
           </div>
 
+          {showFilters && (
+  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 mb-6 w-full">
+    {/* FROM / TO */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label className="block text-sm text-white mb-1">From</label>
+        <input
+          type="text"
+          value={filters.from}
+          onChange={e => setFilters({ ...filters, from: e.target.value })}
+          className="input-field w-full"
+          placeholder="Origin city"
+        />
+      </div>
+      <div>
+        <label className="block text-sm text-white mb-1">To</label>
+        <input
+          type="text"
+          value={filters.to}
+          onChange={e => setFilters({ ...filters, to: e.target.value })}
+          className="input-field w-full"
+          placeholder="Destination city"
+        />
+      </div>
+    </div>
+
+    {/* DATE / TIME */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+      <div className="relative">
+        <label className="block text-sm text-white mb-1">Date</label>
+        <input
+          type="date"
+          value={filters.date}
+          onChange={e => setFilters({ ...filters, date: e.target.value })}
+          className="input-field w-full pr-10"
+        />
+        <CalendarDaysIcon className="w-5 h-5 text-green-500 absolute right-3 top-9 pointer-events-none" />
+      </div>
+      <div>
+        <label className="block text-sm text-white mb-1">Time of Day</label>
+        <select
+          value={filters.timeOfDay || ''}
+          onChange={e => setFilters({ ...filters, timeOfDay: e.target.value })}
+          className="input-field w-full"
+        >
+          <option value="">Any</option>
+          <option value="MORNING">Morning</option>
+          <option value="NOON">Noon</option>
+          <option value="EVENING">Evening</option>
+          <option value="FLEXIBLE">Flexible</option>
+        </select>
+      </div>
+    </div>
+
+    {/* HASHTAGS */}
+    {/* <div>
+      <label className="block text-sm text-white mb-1">Hashtags</label>
+      <div className="flex flex-wrap gap-2">
+        {[
+          'PetFriendly', 'SmokeFree', 'WomenOnly',
+          'MusicOK', 'QuietRide', 'FlexibleTiming',
+          'RoundTrip', 'SameCollege',
+        ].map(tag => (
+          <button
+            key={tag}
+            type="button"
+            onClick={() => {
+              const current = filters.hashtags || []
+              setFilters({
+                ...filters,
+                hashtags: current.includes(tag)
+                  ? current.filter(t => t !== tag)
+                  : [...current, tag],
+              })
+            }}
+            className={`px-3 py-1 text-xs rounded-full border ${
+              filters.hashtags?.includes(tag)
+                ? 'bg-emerald-700 border-emerald-500 text-white'
+                : 'bg-zinc-800 border-zinc-700 text-gray-300'
+            }`}
+          >
+            #{tag}
+          </button>
+        ))}
+      </div>
+    </div> */}
+<div className="flex justify-end mt-4">
+  <button
+    onClick={() =>
+      setFilters({
+        from: '',
+        to: '',
+        date: '',
+        type: 'ALL',
+        timeOfDay: '',
+        hashtags: [],
+      })
+    }
+    className="px-4 py-1 text-sm rounded-full bg-emerald-700 text-white hover:bg-emerald-800 transition font-semibold"
+  >
+    Clear All Filters
+  </button>
+</div>
+  </div>
+  
+)}
+
           <div className="flex flex-col gap-8 items-start w-full">
             {sortedPostsWithExpiry.map((post) => (
               <div key={post.id} className={`w-full ${isOldPost(post.date) ? 'opacity-50 grayscale pointer-events-none select-none' : ''}`}>
@@ -337,7 +457,7 @@ export default function RideFeed({ posts = [], setPosts, handleConnect, showFilt
             {sortedPostsWithExpiry.length === 0 && (
               <div className="text-center py-12 text-gray-400">
                 <p>No rides found matching your criteria.</p>
-                <button onClick={() => setFilters({ from: '', to: '', date: '', type: 'ALL' })} className="mt-4 px-4 py-2 bg-zinc-700 text-white rounded-md hover:bg-zinc-600">Clear Filters</button>
+                {/* <button onClick={() => setFilters({ from: '', to: '', date: '', type: 'ALL' })} className="mt-4 px-4 py-2 bg-zinc-700 text-white rounded-md hover:bg-zinc-600">Clear Filters</button> */}
               </div>
             )}
           </div>

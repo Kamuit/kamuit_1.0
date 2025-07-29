@@ -24,7 +24,7 @@ export default function HomePage() {
     const loadData = async () => {
       setLoading(true)
       try {
-        const res = await fetch('/api/ride-posts')
+        const res = await fetch('/api/ride-posts', { cache: 'no-store' })
         const data = await res.json()
         setPosts(data.posts)
       } catch (err) {
