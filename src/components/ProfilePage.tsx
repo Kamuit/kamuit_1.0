@@ -85,6 +85,14 @@ useEffect(() => {
   }
 }, [profileUser, loggedInUser]);
 
+useEffect(() => {
+  if (profileUser && !editMode) {
+    setBioValue(profileUser.bio || '');
+    setLocationValue(profileUser.location || '');
+    setWebsiteValue(profileUser.website || '');
+  }
+}, [profileUser, editMode]);
+
   useEffect(() => {
     // Fetch rides for the profile user
     if (profileUser) {

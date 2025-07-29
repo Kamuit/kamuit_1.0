@@ -31,14 +31,18 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    // Flatten hashtags array to string array
     const formatted = posts.map((post) => ({
       ...post,
       hashtags: post.hashtags.map((h) => h.hashtag.name),
-      role: post.type === 'OFFER' ? 'driver' : 'passenger', // for UI icon logic
+      role: post.type === 'OFFER' ? 'driver' : 'passenger',
     }));
 
-    return NextResponse.json({ posts: formatted }, { status: 200 });
+    const res = NextResponse.json({ posts: formatted }, { status: 200 });
+    res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    res.headers.set('Pragma', 'no-cache');
+    res.headers.set('Expires', '0');
+
+    return res;
   } catch (error) {
     console.error('[GET_RIDE_POSTS_ERROR]', error);
     return NextResponse.json({ error: 'Failed to fetch ride posts' }, { status: 500 });
