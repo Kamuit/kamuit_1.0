@@ -396,7 +396,7 @@ const [universitySuggestions, setUniversitySuggestions] = useState<{ id: string,
         <button
           className="btn-primary w-full"
           onClick={handleVerifyEmail}
-          disabled={userEnteredCode.length !== 8}
+          disabled={userEnteredCode.length !== 6}
           type="button"
         >
           Verify Code
