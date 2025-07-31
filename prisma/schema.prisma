@@ -108,7 +108,7 @@ model SavedRide {
   ridePostId String
 
   user     User     @relation(fields: [userId], references: [id])
-  ridePost RidePost @relation(fields: [ridePostId], references: [id])
+  ridePost RidePost @relation(fields: [ridePostId], references: [id], onDelete: Cascade)
 
   @@unique([userId, ridePostId])
 }

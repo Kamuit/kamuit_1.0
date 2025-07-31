@@ -401,6 +401,9 @@ const filteredPosts = (posts || []).filter(post => {
 )}
 
 <div className="flex justify-between items-center flex-wrap mt-2 gap-2">
+  <div className="text-xs text-emerald-400 font-normal break-words max-w-full">
+  📧 {post.user.email}
+</div>
   {/* Left: Interested count or empty for spacing */}
   <div className="text-xs text-emerald-400 min-w-[120px]">
     {typeof post.saveCount === 'number' && post.saveCount > 1
