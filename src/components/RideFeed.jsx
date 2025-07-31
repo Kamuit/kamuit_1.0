@@ -60,7 +60,7 @@ const filteredPosts = (posts || []).filter(post => {
     switch (sortBy) {
       case 'latest': return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       case 'upcoming': return new Date(a.date).getTime() - new Date(b.date).getTime()
-      case 'seats': return (b.seatsAvailable || b.seatsNeeded || 0) - (a.seatsAvailable || a.seatsNeeded || 0)
+      case 'seats': return (b.seats || b.seatsNeeded || 0) - (a.seats || a.seatsNeeded || 0)
       default: return 0
     }
   })
@@ -115,7 +115,7 @@ const filteredPosts = (posts || []).filter(post => {
   }
 
   const getSeatsText = (post) => {
-    const seatCount = post.seatsAvailable || post.seats || 1
+    const seatCount = post.seats || 1
     return post.type === 'OFFER'
       ? `${seatCount} seat${seatCount !== 1 ? 's' : ''} available`
       : `${seatCount} seat${seatCount !== 1 ? 's' : ''} needed`
