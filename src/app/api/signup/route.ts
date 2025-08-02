@@ -12,21 +12,17 @@ const streamClient = StreamChat.getInstance(
   process.env.STREAM_API_SECRET!
 );
 
+
+
 export async function POST(req: NextRequest) {
-  const {
-    firstName,
-    lastName,
-    email,
-    password,
-    homeCity,
-    isStudent,
-    university,
-    gender
-  } = await req.json();
+  let { firstName, lastName, email, password, homeCity, isStudent, university, gender } = await req.json();
+
+  email = email.toLowerCase();
 
   if (!firstName || !lastName || !email || !password) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
+  const normalizedEmail = email.toLowerCase();
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
@@ -35,11 +31,12 @@ export async function POST(req: NextRequest) {
 
   const hashed = await bcrypt.hash(password, 10);
 
+
   const user = await prisma.user.create({
     data: {
       firstName,
       lastName,
-      email,
+      email: normalizedEmail,
       password: hashed,
       homeCity: homeCity || null,
       isStudent: Boolean(isStudent),

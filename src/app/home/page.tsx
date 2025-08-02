@@ -167,23 +167,24 @@ return (
   </div>
 )}
 {showWarning && (
-  <div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center px-4">
-    <div className="bg-zinc-900 border border-zinc-800 text-white rounded-xl p-6 max-w-sm w-full shadow-lg text-center text-sm sm:text-base">
-      <h2 className="text-lg font-bold mb-2 text-emerald-400">Whoa there, traveler! 🧳</h2>
-      <p className="mb-4">
-        Before requesting a ride... maybe check if someone’s already offering one? <br /> You might save yourself a text.
-      </p>
-      <button
-        onClick={() => {
-          setShowWarning(false)
-          setModalTab('find')
-        }}
-        className="mt-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2 rounded-md"
-      >
-        Okay okay, I’ll check!
-      </button>
-    </div>
+<div className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center px-4">
+  <div className="bg-zinc-900 border border-zinc-800 text-white rounded-xl p-6 max-w-sm w-full shadow-lg text-center text-sm sm:text-base">
+    <h2 className="text-lg font-bold mb-2 text-emerald-400">Be the first to roll! 🚗💨</h2>
+     <p className="mb-4">
+  Want to get somewhere? Post your ride request. <br />
+  Someone might just be going that way too.
+</p>
+    <button
+      onClick={() => {
+        setShowWarning(false)
+        setModalTab('find')
+      }}
+      className="mt-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2 rounded-md"
+    >
+      Let`s do it
+    </button>
   </div>
+</div>
 )}
 </div>
     </div>

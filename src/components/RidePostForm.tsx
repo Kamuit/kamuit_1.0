@@ -143,7 +143,7 @@ export default function RidePostForm({
                 {...register('from')}
                 id="from"
                 className={`input-field ${readOnlyClass('from')}`}
-                placeholder="e.g. Chennai"
+                placeholder="e.g. New York"
                 readOnly={readOnlyFields.includes('from')}
                 disabled={readOnlyFields.includes('from')}
                 onClick={() => readOnlyFields.includes('from') && onFieldClick?.('from')}
@@ -156,7 +156,7 @@ export default function RidePostForm({
                 {...register('to')}
                 id="to"
                 className={`input-field ${readOnlyClass('from')}`}
-                placeholder="e.g. Bengaluru"
+                placeholder="e.g. Boston"
                 readOnly={readOnlyFields.includes('to')}
                 disabled={readOnlyFields.includes('to')}
                 onClick={() => readOnlyFields.includes('to') && onFieldClick?.('to')}
@@ -213,12 +213,13 @@ export default function RidePostForm({
               {errors.seats && <p className="text-red-500 text-sm mt-1">{errors.seats.message}</p>}
             </div>
             <div>
-              <label htmlFor="contactInfo" className="block text-sm font-medium text-gray-700 mb-1">Contact Info *</label>
+              <label htmlFor="contactInfo" className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
               <input
+              type="email"
                 {...register('contactInfo')}
                 id="contactInfo"
                 className="input-field"
-                placeholder="Phone, email, etc."
+                placeholder="Email"
               />
               {errors.contactInfo && <p className="text-red-500 text-sm mt-1">{errors.contactInfo.message}</p>}
             </div>

@@ -37,12 +37,14 @@ export default function Sidebar() {
 <aside className="hidden lg:flex fixed left-0 top-0 h-screen bg-gray-950 flex-col items-center px-2 py-6 w-20 md:w-72 ml-2 md:ml-8 transition-all z-40 border-r border-[#222327]">
       {/* Logo placeholder */}
       <div className="mb-8 flex items-center justify-center w-full">
-      <img
-        src="/assets/b2.svg"
-        alt="kamuit logo"
-        className="w-12 h-12"
-        onError={(e) => { e.currentTarget.style.display = 'none' }}
-      />
+        <Link href="/home" aria-label="Kamuit Home">
+          <img
+            src="/assets/b2.svg"
+            alt="kamuit logo"
+            className="w-12 h-12 cursor-pointer"
+            onError={(e) => { e.currentTarget.style.display = 'none' }}
+          />
+        </Link>
       </div>
       <nav className="flex flex-col gap-2 flex-1 w-full items-center justify-center">
         {links.map(({ href, icon: Icon, label, aria }) => (
@@ -80,17 +82,6 @@ export default function Sidebar() {
           <PlusCircle className="md:hidden w-7 h-7 mx-auto" />
         </button>
       </div>
-      {/* <button
-        className="w-16 md:w-60 bg-zinc-800 hover:bg-zinc-700 text-white rounded-full py-3 text-base font-semibold transition mb-2"
-        onClick={() => {
-          localStorage.removeItem('currentUser');
-          window.dispatchEvent(new Event('storage'));
-          router.replace('/login');
-        }}
-      >
-        <span className="hidden md:inline">Log Out</span>
-        <User className="md:hidden w-7 h-7 mx-auto" />
-      </button> */}
     </aside>
   )
 } 
