@@ -136,37 +136,23 @@ const filteredPosts = (posts || []).filter(post => {
     return `c_${hash}`
   }
 
-  const handleConnectClick = (post) => {
-    const currentUser = getCurrentUser()
-    const otherUser = post.user
-    const rideId = post.id
+const handleConnectClick = (post) => {
+  const currentUser = getCurrentUser()
+  const otherUser = post.user
+  const rideId = post.id
 
-    if (!currentUser || !otherUser?.id) return
-    if (currentUser.id === otherUser.id) return
+  if (!currentUser || !otherUser?.id) return
+  if (currentUser.id === otherUser.id) return
 
-    const conversationId = getConversationId(currentUser, otherUser, rideId)
-    const conversations = JSON.parse(localStorage.getItem('conversations') || '{}')
+  const conversationId = `c_${[currentUser.id, otherUser.id].sort().join('_')}`
 
-    if (!conversations[conversationId]) {
-      conversations[conversationId] = {
-        id: conversationId,
-        userIds: [currentUser.id, otherUser.id],
-        rideId,
-        messages: [{
-          sender: currentUser.id,
-          content: "Hey, I’m interested in your ride!",
-          timestamp: Date.now(),
-        }],
-        lastMessage: "Hey, I’m interested in your ride!",
-        lastTimestamp: Date.now(),
-        otherUser,
-        ride: post,
-      }
-      localStorage.setItem('conversations', JSON.stringify(conversations))
-    }
-
-    router.push(`/messages/${conversationId}?userA=${currentUser.id}&userB=${otherUser.id}&rideId=${rideId}`)
-  }
+  router.push(
+    `/messages/${conversationId}?userA=${currentUser.id}&userB=${otherUser.id}&rideId=${rideId}` +
+    `&firstName=${encodeURIComponent(otherUser.firstName)}` +
+    `&lastName=${encodeURIComponent(otherUser.lastName || '')}` +
+    (otherUser.photoUrl ? `&photoUrl=${encodeURIComponent(otherUser.photoUrl)}` : '')
+  )
+}
 
   return (
     <>
@@ -297,38 +283,6 @@ const filteredPosts = (posts || []).filter(post => {
       </div>
     </div>
 
-    {/* HASHTAGS */}
-    {/* <div>
-      <label className="block text-sm text-white mb-1">Hashtags</label>
-      <div className="flex flex-wrap gap-2">
-        {[
-          'PetFriendly', 'SmokeFree', 'WomenOnly',
-          'MusicOK', 'QuietRide', 'FlexibleTiming',
-          'RoundTrip', 'SameCollege',
-        ].map(tag => (
-          <button
-            key={tag}
-            type="button"
-            onClick={() => {
-              const current = filters.hashtags || []
-              setFilters({
-                ...filters,
-                hashtags: current.includes(tag)
-                  ? current.filter(t => t !== tag)
-                  : [...current, tag],
-              })
-            }}
-            className={`px-3 py-1 text-xs rounded-full border ${
-              filters.hashtags?.includes(tag)
-                ? 'bg-emerald-700 border-emerald-500 text-white'
-                : 'bg-zinc-800 border-zinc-700 text-gray-300'
-            }`}
-          >
-            #{tag}
-          </button>
-        ))}
-      </div>
-    </div> */}
 <div className="flex justify-end mt-4">
   <button
     onClick={() =>

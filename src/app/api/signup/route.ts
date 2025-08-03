@@ -1,61 +1,39 @@
 // /app/api/signup/route.ts
 
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
-import { StreamChat } from 'stream-chat';
+import { NextRequest, NextResponse } from 'next/server'
+import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
-const prisma = new PrismaClient();
-
-const streamClient = StreamChat.getInstance(
-  process.env.STREAM_API_KEY!,
-  process.env.STREAM_API_SECRET!
-);
-
-
+const prisma = new PrismaClient()
 
 export async function POST(req: NextRequest) {
-  let { firstName, lastName, email, password, homeCity, isStudent, university, gender } = await req.json();
+  let { firstName, lastName, email, password, homeCity, isStudent, university, gender } = await req.json()
 
-  email = email.toLowerCase();
+  email = email.toLowerCase()
 
   if (!firstName || !lastName || !email || !password) {
-    return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+    return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
   }
-  const normalizedEmail = email.toLowerCase();
 
-  const existing = await prisma.user.findUnique({ where: { email } });
+  const existing = await prisma.user.findUnique({ where: { email } })
   if (existing) {
-    return NextResponse.json({ error: 'User already exists' }, { status: 409 });
+    return NextResponse.json({ error: 'User already exists' }, { status: 409 })
   }
 
-  const hashed = await bcrypt.hash(password, 10);
-
+  const hashed = await bcrypt.hash(password, 10)
 
   const user = await prisma.user.create({
     data: {
       firstName,
       lastName,
-      email: normalizedEmail,
+      email,
       password: hashed,
       homeCity: homeCity || null,
       isStudent: Boolean(isStudent),
       university: university || null,
-      gender
+      gender,
     },
-  });
-
-  try {
-    await streamClient.upsertUser({
-      id: user.id,
-      name: `${firstName} ${lastName}`,
-    });
-  } catch (err) {
-    console.error('[Stream Upsert Error]', err);
-    return NextResponse.json({ error: 'Failed to create chat user' }, { status: 500 });
-  }
-
-  const token = streamClient.createToken(user.id);
+  })
 
   return NextResponse.json({
     message: 'User created',
@@ -68,7 +46,5 @@ export async function POST(req: NextRequest) {
       isStudent: user.isStudent,
       university: user.university,
     },
-    chatToken: token,
-    streamApiKey: process.env.STREAM_API_KEY,
-  });
+  })
 }
