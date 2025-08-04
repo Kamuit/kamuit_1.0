@@ -263,9 +263,9 @@ const handleConnectClick = (post) => {
           type="date"
           value={filters.date}
           onChange={e => setFilters({ ...filters, date: e.target.value })}
-          className="input-field w-full pr-10"
+          className="input-field w-full pr-10 text-left appearance-none"
         />
-        <CalendarDaysIcon className="w-5 h-5 text-green-500 absolute right-3 top-[38px] pointer-events-none" />
+        <CalendarDaysIcon className="w-5 h-5 text-green-500 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
       </div>
       <div>
         <label className="block text-sm text-white mb-1">Time of Day</label>

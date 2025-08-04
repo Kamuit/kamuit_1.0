@@ -172,7 +172,7 @@ export default function RidePostForm({
                 {...register('date')}
                 type="date"
                 id="date"
-                className={`input-field ${readOnlyClass('date')} pr-10 text-left`}
+                className={`input-field pr-10 text-left appearance-none ${readOnlyClass('date')}`}
                 min={new Date().toISOString().split('T')[0]}
                 max={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
                 placeholder="YYYY-MM-DD"
@@ -180,7 +180,7 @@ export default function RidePostForm({
                 disabled={readOnlyFields.includes('date')}
                 onClick={() => readOnlyFields.includes('date') && onFieldClick?.('date')}
               />
-              <CalendarDaysIcon className="w-5 h-5 text-green-500 absolute right-3 top-[34px] pointer-events-none" />
+              <CalendarDaysIcon className="w-5 h-5 text-green-500 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
               {errors.date && <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>}
             </div>
 
