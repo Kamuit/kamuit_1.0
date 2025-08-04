@@ -167,12 +167,12 @@ export default function RidePostForm({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative">
-              <label htmlFor="date" className={`input-field ${readOnlyClass('date')} pr-10 text-left`}>Date *</label>
+              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">Date *</label>
               <input
                 {...register('date')}
                 type="date"
                 id="date"
-                className={`input-field ${readOnlyClass('from')}`}
+                className={`input-field ${readOnlyClass('date')} pr-10 text-left`}
                 min={new Date().toISOString().split('T')[0]}
                 max={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
                 placeholder="YYYY-MM-DD"
@@ -180,7 +180,7 @@ export default function RidePostForm({
                 disabled={readOnlyFields.includes('date')}
                 onClick={() => readOnlyFields.includes('date') && onFieldClick?.('date')}
               />
-              <CalendarDaysIcon className="w-5 h-5 text-green-500 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+              <CalendarDaysIcon className="w-5 h-5 text-green-500 absolute right-3 top-[38px] pointer-events-none" />
               {errors.date && <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>}
             </div>
 
