@@ -263,7 +263,7 @@ const handleConnectClick = (post) => {
           type="date"
           value={filters.date}
           onChange={e => setFilters({ ...filters, date: e.target.value })}
-          className="input-field w-full pr-10 text-left appearance-none"
+          className="input-field w-full pr-10 text-left appearance-none [&::-webkit-datetime-edit]:text-left"
         />
         <CalendarDaysIcon className="w-5 h-5 text-green-500 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
       </div>
