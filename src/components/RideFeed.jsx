@@ -258,15 +258,24 @@ const handleConnectClick = (post) => {
     {/* DATE / TIME */}
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
       <div className="relative">
-        <label className="block text-sm text-white mb-1">Date</label>
-        <input
-          type="date"
-          value={filters.date}
-          onChange={e => setFilters({ ...filters, date: e.target.value })}
-          className="input-field w-full pr-10 text-left appearance-none [&::-webkit-datetime-edit]:text-left"
-        />
-          <CalendarDaysIcon className="w-5 h-5 text-green-500 absolute right-3 top-2/3 transform -translate-y-1/2 pointer-events-none" />
-      </div>
+  <label className="block text-sm text-white mb-1">Date</label>
+
+  {/* Fake placeholder */}
+  {filters.date === '' && (
+    <span className="absolute left-3 top-[50%] transform -translate-y-1/2 text-gray-400 pointer-events-none text-sm z-0">
+      Select a date
+    </span>
+  )}
+
+  <input
+    type="date"
+    value={filters.date}
+    onChange={e => setFilters({ ...filters, date: e.target.value })}
+    className="input-field w-full pr-10 text-left appearance-none relative z-10 bg-transparent text-white"
+  />
+
+  <CalendarDaysIcon className="w-5 h-5 text-green-500 absolute right-3 top-2/3 transform -translate-y-1/2 pointer-events-none z-10" />
+</div>
       <div>
         <label className="block text-sm text-white mb-1">Time of Day</label>
         <select
