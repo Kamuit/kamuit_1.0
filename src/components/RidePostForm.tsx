@@ -167,7 +167,7 @@ export default function RidePostForm({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="relative">
-              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">Date *</label>
+              <label htmlFor="date" className={`input-field ${readOnlyClass('date')} pr-10 text-left`}>Date *</label>
               <input
                 {...register('date')}
                 type="date"
